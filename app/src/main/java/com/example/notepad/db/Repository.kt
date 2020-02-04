@@ -1,6 +1,7 @@
 package com.example.notepad.db
 
 import android.content.Context
+import com.example.notepad.db.models.Note
 import com.google.gson.reflect.TypeToken
 
 class Repository<T>(context: Context) : DataBase(context) {
@@ -12,16 +13,25 @@ class Repository<T>(context: Context) : DataBase(context) {
         editor.apply()
     }
 
-    fun getItemsList(key: String): ArrayList<T> {
-        val emptyList: String = mGson.toJson(ArrayList<T>())
+    fun getItemsList(key: String): ArrayList<Note> {
+        val emptyList: String = mGson.toJson(ArrayList<Note>())
 
         return mGson.fromJson(
             mPrefs.getString(key, emptyList),
-            object : TypeToken<ArrayList<T>>() {}.type
+            object : TypeToken<ArrayList<Note>>() {}.type
         )
     }
 
+//    fun getItemsList(key: String): ArrayList<T> {
+//        val emptyList: String = mGson.toJson(ArrayList<T>())
+//
+//        return mGson.fromJson(
+//            mPrefs.getString(key, emptyList),
+//            object : TypeToken<ArrayList<T>>() {}.type
+//        )
+//    }
+
     companion object {
-        val allNotes = "AllNotes"
+        const val allNotes = "AllNotes"
     }
 }

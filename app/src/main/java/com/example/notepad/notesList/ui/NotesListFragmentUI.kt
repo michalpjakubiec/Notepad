@@ -1,5 +1,8 @@
 package com.example.notepad.notesList.ui
 
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.R
@@ -17,16 +20,23 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
 
     override fun createView(ui: AnkoContext<T>) = with(ui) {
 
-        textInputLayout {
-            lparams(matchParent, wrapContent)
+        verticalLayout {
+            lparams(matchParent, matchParent)
 
-            mEtSearch = textInputEditText {
-                textSize = 16f
-                hint = context.resources.getString(R.string.search)
-            }.lparams(matchParent, matchParent)
+            textInputLayout {
+                isErrorEnabled = true
+
+                mEtSearch = textInputEditText {
+                    textSize = 16f
+                    hint = context.resources.getString(R.string.search)
+                    layoutParams = LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT)
+                }//.lparams(matchParent, matchParent) java.lang.ClassCastException:
+            }.lparams(matchParent, wrapContent)
 
             verticalLayout {
-                lparams(matchParent, matchParent)
+                lparams(matchParent, wrapContent)
 
                 mAdapter = NotesAdapter(
                     context,

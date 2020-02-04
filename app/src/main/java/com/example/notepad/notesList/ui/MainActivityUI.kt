@@ -1,6 +1,7 @@
 package com.example.notepad.notesList.ui
 
 import android.view.View
+import androidx.fragment.app.Fragment
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 
@@ -13,4 +14,5 @@ class MainActivityUI<T> : AnkoComponent<T> {
             }
         }
     }.view
+
 }
