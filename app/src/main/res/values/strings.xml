@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Notepad</string>
+    <string name="search">Search…</string>
+
+
+
+
+
+
+
+    <string name="errorNotesListQueryTooShort">Query must be longer than 3 characters</string>
+</resources>

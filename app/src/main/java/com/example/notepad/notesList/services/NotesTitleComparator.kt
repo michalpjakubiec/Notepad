@@ -1,0 +1,17 @@
+package com.example.notepad.notesList.services
+
+import com.example.notepad.db.models.Note
+import com.example.notepad.notesList.utils.NotesListSearchResult
+import com.example.notepad.utils.filterByTitle
+import io.reactivex.Observable
+
+class NotesTitleComparator {
+    fun compareTitles(notes: ArrayList<Note>, query: String): Observable<NotesListSearchResult> {
+        if (query.isEmpty())
+            return Observable.just(NotesListSearchResult.Pending)
+        if (query.length < 3)
+            return Observable.just(NotesListSearchResult.Error("Query must be longer than 2 characters"))
+
+        return Observable.just(NotesListSearchResult.Completed(ArrayList(notes.filterByTitle(query))))
+    }
+}
