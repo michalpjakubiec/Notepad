@@ -10,6 +10,7 @@ import com.example.notepad.R
 import com.example.notepad.db.NoteRepository
 import com.example.notepad.db.models.Note
 import io.reactivex.Maybe
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -43,27 +44,25 @@ class NotesAdapter(
         val note = notes[position]
         holder.bindItem(note, position)
 
-        compositeDisposable.add(
-            Maybe.create<Boolean> { emitter ->
-                emitter.setCancellable {
-                    holder.btArchive.setOnClickListener(null)
-                }
-                holder.btArchive.setOnClickListener {
-                    emitter.onSuccess((it as Button).isVisible)
-                }
-            }.toFlowable().onBackpressureLatest()
-                .observeOn(Schedulers.io())
-                .map {
-                    note.isArchival = true
-                    val database = NoteRepository.getInstance(holder.itemView.context)
-                    database.update(note)
+        compositeDisposable.add(Observable.create<Boolean> { emitter ->
+            holder.btArchive.setOnClickListener {
+                emitter.onNext((it as Button).isVisible)
+            }
+            emitter.setCancellable {
+                holder.btArchive.setOnClickListener(null)
+            }
 
-                    note.isArchival
-                }
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    setItemViewArchivalTheme(holder.itemView, holder.btArchive, it)
-                }
+        }.observeOn(Schedulers.io())
+            .map {
+                note.isArchival = true
+                val database = NoteRepository.getInstance(holder.itemView.context)
+                database.update(note)
+
+                note.isArchival
+            }.subscribeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                setItemViewArchivalTheme(holder.itemView, holder.btArchive, it)
+            }
         )
     }
 
