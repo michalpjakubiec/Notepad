@@ -16,16 +16,16 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
         when (change) {
             is NotesListViewStateChange.NotesListChanged -> {
                 when (change.searchResult) {
-                    is NotesListSearchResult.Pending -> {
-                        currentState.isSearchPending = true
+                    is NotesListSearchResult.Canceled -> {
+                        currentState.isSearchCanceled = true
                         currentState.isSearchCompleted = false
                         currentState.isSearchFailed = false
-                        currentState.notesList = ArrayList()
+                        currentState.notesList = change.searchResult.notesList
                         currentState.error = ""
                     }
 
                     is NotesListSearchResult.Completed -> {
-                        currentState.isSearchPending = false
+                        currentState.isSearchCanceled = false
                         currentState.isSearchCompleted = true
                         currentState.isSearchFailed = false
                         currentState.notesList = change.searchResult.notesList
@@ -33,7 +33,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                     }
 
                     is NotesListSearchResult.Error -> {
-                        currentState.isSearchPending = false
+                        currentState.isSearchCanceled = false
                         currentState.isSearchCompleted = false
                         currentState.isSearchFailed = true
                         currentState.notesList = ArrayList()

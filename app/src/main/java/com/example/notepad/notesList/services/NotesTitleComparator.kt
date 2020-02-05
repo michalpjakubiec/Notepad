@@ -8,7 +8,7 @@ import io.reactivex.Observable
 class NotesTitleComparator {
     fun compareTitles(notes: ArrayList<Note>, query: String): Observable<NotesListSearchResult> {
         if (query.isEmpty())
-            return Observable.just(NotesListSearchResult.Pending)
+            return Observable.just(NotesListSearchResult.Canceled(ArrayList(notes)))
         if (query.length < 3)
             return Observable.just(NotesListSearchResult.Error("Query must be longer than 2 characters"))
 

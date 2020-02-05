@@ -33,7 +33,11 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
         if (ui.mEtSearch.isFocused && state.isSearchFailed)
             ui.mEtSearch.error = state.error
 
-
+        if (ui.mEtSearch.isFocused && state.isSearchCanceled) {
+            ui.mAdapter.notes.clear()
+            ui.mAdapter.notes = state.notesList
+            ui.mAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
