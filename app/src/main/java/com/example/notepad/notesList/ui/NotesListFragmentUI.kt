@@ -1,8 +1,10 @@
 package com.example.notepad.notesList.ui
 
+import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.R
@@ -17,6 +19,7 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
     lateinit var mEtSearch: TextInputEditText
     lateinit var mRecycler: RecyclerView
     lateinit var mAdapter: NotesAdapter
+    lateinit var progressBar: ProgressBar
 
     override fun createView(ui: AnkoContext<T>) = with(ui) {
 
@@ -31,24 +34,44 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
                     hint = context.resources.getString(R.string.search)
                     layoutParams = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT)
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
                 }//.lparams(matchParent, matchParent) java.lang.ClassCastException:
             }.lparams(matchParent, wrapContent)
 
             verticalLayout {
                 lparams(matchParent, wrapContent)
 
-                mAdapter = NotesAdapter(
-                    context,
-                    ArrayList()
-                ) {
-                    //startActivity<NoteActivity>("noteBundle" to it)
+                progressBar = progressBar {
+                    visibility = View.GONE
+                    isIndeterminate = false
+                }.lparams {
+                    width = wrapContent
+                    height = wrapContent
+                    gravity = Gravity.CENTER
                 }
 
+                mAdapter = NotesAdapter(context)
                 mRecycler = recyclerView {
                     layoutManager = LinearLayoutManager(context)
                     adapter = mAdapter
                 }
+            }
+        }
+    }
+
+    fun showProgress() {
+        doAsync {
+            uiThread {
+                progressBar.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    fun hideProgress() {
+        doAsync {
+            uiThread {
+                progressBar.visibility = View.GONE
             }
         }
     }

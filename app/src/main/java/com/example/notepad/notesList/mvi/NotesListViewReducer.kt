@@ -2,6 +2,7 @@ package com.example.notepad.notesList.mvi
 
 import android.util.Log
 import com.example.notepad.base.ReducerBase
+import com.example.notepad.notesList.utils.NotesListArchiveResult
 import com.example.notepad.notesList.utils.NotesListSearchResult
 
 class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateChange> {
@@ -45,5 +46,4 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
 
         return currentState
     }
-
 }

@@ -1,12 +1,14 @@
 package com.example.notepad.notesList.services
 
-import com.example.notepad.db.models.Note
+import com.example.notepad.db.NoteRepository
 import com.example.notepad.notesList.utils.NotesListSearchResult
 import com.example.notepad.utils.filterByTitle
 import io.reactivex.Observable
 
 class NotesTitleComparator {
-    fun compareTitles(notes: ArrayList<Note>, query: String): Observable<NotesListSearchResult> {
+    fun compareTitles(query: String, noteRepository: NoteRepository): Observable<NotesListSearchResult> {
+        val notes = noteRepository.getAll(NoteRepository.notesTableKey)
+
         if (query.isEmpty())
             return Observable.just(NotesListSearchResult.Canceled(ArrayList(notes)))
         if (query.length < 3)

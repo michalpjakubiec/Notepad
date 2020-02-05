@@ -1,6 +1,7 @@
 package com.example.notepad.notesList.mvi
 
 import com.example.notepad.base.ViewStateChangeBase
+import com.example.notepad.notesList.utils.NotesListArchiveResult
 import com.example.notepad.notesList.utils.NotesListSearchResult
 
 sealed class NotesListViewStateChange : ViewStateChangeBase {
