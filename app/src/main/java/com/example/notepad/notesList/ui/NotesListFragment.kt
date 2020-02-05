@@ -24,25 +24,19 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
         get() = ui.mEtSearch.textChanges().map { it.toString() }
 
     override fun render(state: NotesListViewState) {
-        if (ui.mEtSearch.isFocused && state.isSearchCompleted) {
-            ui.mAdapter.notes.clear()
-            ui.mAdapter.notes = state.notesList
-            ui.mAdapter.notifyDataSetChanged()
-        }
+        if (ui.mEtSearch.isFocused && state.isSearchCompleted)
+            ui.mAdapter.replaceItemsAndNotifyDataSetChanged(state.notesList)
 
         if (ui.mEtSearch.isFocused && state.isSearchFailed)
             ui.mEtSearch.error = state.error
 
-        if (ui.mEtSearch.isFocused && state.isSearchCanceled) {
-            ui.mAdapter.notes.clear()
-            ui.mAdapter.notes = state.notesList
-            ui.mAdapter.notifyDataSetChanged()
-        }
+        if (ui.mEtSearch.isFocused && state.isSearchCanceled)
+            ui.mAdapter.replaceItemsAndNotifyDataSetChanged(state.notesList)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadAdapter(initNotes(30))
+        ui.mAdapter.replaceItemsAndNotifyDataSetChanged(initNotes(30))
     }
 
     private fun initNotes(quantity: Int): ArrayList<Note> {
@@ -63,11 +57,6 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
 
         repo.saveItemsList(Repository.allNotes, notes)
         return notes
-    }
-
-    private fun loadAdapter(notes: ArrayList<Note>) {
-        ui.mAdapter.notes = notes
-        ui.mAdapter.notifyDataSetChanged()
     }
 
     override fun onCreateView(

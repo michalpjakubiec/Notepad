@@ -28,4 +28,10 @@ class NotesAdapter(
     }
 
     override fun getItemCount(): Int = notes.size
+
+    fun replaceItemsAndNotifyDataSetChanged(items: ArrayList<Note>) {
+        this.notes.clear()
+        this.notes = items
+        this.notifyDataSetChanged()
+    }
 }
