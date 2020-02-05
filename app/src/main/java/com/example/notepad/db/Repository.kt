@@ -13,13 +13,20 @@ class Repository<T>(context: Context) : DataBase(context) {
         editor.apply()
     }
 
-    fun getItemsList(key: String): ArrayList<Note> {
+    fun getItemsList(key: String): ArrayList<T> {
         val emptyList: String = mGson.toJson(ArrayList<Note>())
 
         return mGson.fromJson(
             mPrefs.getString(key, emptyList),
             object : TypeToken<ArrayList<Note>>() {}.type
         )
+    }
+
+    fun updateItem(item: T) {
+        val allItems = getItemsList(allNotes)
+        allItems[allItems.indexOf(item)] = item
+
+        saveItemsList(allNotes, allItems)
     }
 
 //    fun getItemsList(key: String): ArrayList<T> {

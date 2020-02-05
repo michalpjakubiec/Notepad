@@ -2,6 +2,7 @@ package com.example.notepad.notesList.mvi
 
 import android.util.Log
 import com.example.notepad.base.ReducerBase
+import com.example.notepad.notesList.utils.NotesListArchiveResult
 import com.example.notepad.notesList.utils.NotesListSearchResult
 
 class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateChange> {
@@ -41,9 +42,31 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                     }
                 }
             }
+
+            is NotesListViewStateChange.NotesListItemChanged -> {
+                when (change.archiveResult) {
+                    is NotesListArchiveResult.Pending -> {
+                        currentState.archivedNote = null
+                        currentState.isArchiveFailed = false
+                        currentState.isArchiveCompleted = false
+                        currentState.error = ""
+                    }
+                    is NotesListArchiveResult.Completed -> {
+                        currentState.archivedNote = change.archiveResult.archivedNote
+                        currentState.isArchiveFailed = false
+                        currentState.isArchiveCompleted = true
+                        currentState.error = ""
+                    }
+                    is NotesListArchiveResult.Error -> {
+                        currentState.archivedNote = null
+                        currentState.isArchiveFailed = true
+                        currentState.isArchiveCompleted = false
+                        currentState.error = change.archiveResult.error
+                    }
+                }
+            }
         }
 
         return currentState
     }
-
 }
