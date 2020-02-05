@@ -42,29 +42,6 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                     }
                 }
             }
-
-            is NotesListViewStateChange.NotesListItemChanged -> {
-                when (change.archiveResult) {
-                    is NotesListArchiveResult.Pending -> {
-                        currentState.archivedNote = null
-                        currentState.isArchiveFailed = false
-                        currentState.isArchiveCompleted = false
-                        currentState.error = ""
-                    }
-                    is NotesListArchiveResult.Completed -> {
-                        currentState.archivedNote = change.archiveResult.archivedNote
-                        currentState.isArchiveFailed = false
-                        currentState.isArchiveCompleted = true
-                        currentState.error = ""
-                    }
-                    is NotesListArchiveResult.Error -> {
-                        currentState.archivedNote = null
-                        currentState.isArchiveFailed = true
-                        currentState.isArchiveCompleted = false
-                        currentState.error = change.archiveResult.error
-                    }
-                }
-            }
         }
 
         return currentState

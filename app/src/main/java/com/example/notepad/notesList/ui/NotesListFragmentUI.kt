@@ -9,13 +9,14 @@ import com.example.notepad.db.models.Note
 import com.example.notepad.notesList.adapter.NotesAdapter
 import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.textInputEditText
 import org.jetbrains.anko.design.textInputLayout
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import kotlin.collections.ArrayList
 
-class NotesListFragmentUI<T>(private val listener: (Observable<Note>) -> Unit) : AnkoComponent<T> {
+class NotesListFragmentUI<T> : AnkoComponent<T> {
     lateinit var mEtSearch: TextInputEditText
     lateinit var mRecycler: RecyclerView
     lateinit var mAdapter: NotesAdapter
@@ -41,12 +42,7 @@ class NotesListFragmentUI<T>(private val listener: (Observable<Note>) -> Unit) :
             verticalLayout {
                 lparams(matchParent, wrapContent)
 
-                mAdapter = NotesAdapter(
-                    context,
-                    ArrayList(),
-                    listener
-                )
-
+                mAdapter = NotesAdapter(context)
                 mRecycler = recyclerView {
                     layoutManager = LinearLayoutManager(context)
                     adapter = mAdapter

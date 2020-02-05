@@ -17,6 +17,7 @@ class NoteViewHolderUI : AnkoComponent<ViewGroup> {
     }
 
     override fun createView(ui: AnkoContext<ViewGroup>): View = ui.apply {
+
         verticalLayout {
             this.orientation = LinearLayout.VERTICAL
             lparams(matchParent, wrapContent)

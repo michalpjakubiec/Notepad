@@ -1,20 +1,32 @@
 package com.example.notepad.notesList.adapter
 
 import android.content.Context
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.example.notepad.R
+import com.example.notepad.db.NoteRepository
 import com.example.notepad.db.models.Note
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.Maybe
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoContext
-import kotlin.collections.ArrayList
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 class NotesAdapter(
-    private val context: Context,
-    var notes: ArrayList<Note>,
-    val listener: (Observable<Note>) -> Unit
-    //private val listener: PublishSubject<Note>
+    private val context: Context
 ) : RecyclerView.Adapter<NoteViewHolder>() {
+
+    var notes: List<Note> = listOf()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+    private var compositeDisposable = CompositeDisposable()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         return NoteViewHolder(
@@ -23,27 +35,48 @@ class NotesAdapter(
                     context,
                     parent
                 )
-            ), listener
+            )
         )
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        holder.bindItem(notes[position], position)
-        holder.btArchive.setOnClickListener { }
+        val note = notes[position]
+        holder.bindItem(note, position)
+
+        compositeDisposable.add(
+            Maybe.create<Boolean> { emitter ->
+                emitter.setCancellable {
+                    holder.btArchive.setOnClickListener(null)
+                }
+                holder.btArchive.setOnClickListener {
+                    emitter.onSuccess((it as Button).isVisible)
+                }
+            }.toFlowable().onBackpressureLatest()
+                .observeOn(Schedulers.io())
+                .map {
+                    note.isArchival = true
+                    val database = NoteRepository.getInstance(holder.itemView.context)
+                    database.update(note)
+
+                    note.isArchival
+                }
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    setItemViewArchivalTheme(holder.itemView, holder.btArchive, it)
+                }
+        )
+    }
+
+    private fun setItemViewArchivalTheme(view: View, btn: Button, isArchival: Boolean?) {
+        doAsync {
+            this.uiThread {
+                if (isArchival == true) {
+                    btn.visibility = View.GONE
+                    view.setBackgroundColor(view.context.getColor(R.color.colorArchive))
+                }
+            }
+        }
     }
 
     override fun getItemCount(): Int = notes.size
-
-    private fun getItemPosition(item: Note): Int = notes.indexOf(item)
-
-    fun replaceItemsAndNotifyDataSetChanged(items: ArrayList<Note>) {
-        this.notes.clear()
-        this.notes = items
-        this.notifyDataSetChanged()
-    }
-
-    fun refreshItem(item: Note?) {
-        item ?: return
-        this.notifyItemChanged(getItemPosition(item))
-    }
 }
