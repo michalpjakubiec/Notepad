@@ -1,25 +1,25 @@
 package com.example.notepad.notesList.ui
 
+import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.R
-import com.example.notepad.db.models.Note
 import com.example.notepad.notesList.adapter.NotesAdapter
 import com.google.android.material.textfield.TextInputEditText
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.textInputEditText
 import org.jetbrains.anko.design.textInputLayout
 import org.jetbrains.anko.recyclerview.v7.recyclerView
-import kotlin.collections.ArrayList
 
 class NotesListFragmentUI<T> : AnkoComponent<T> {
     lateinit var mEtSearch: TextInputEditText
     lateinit var mRecycler: RecyclerView
     lateinit var mAdapter: NotesAdapter
+    lateinit var progressBar: ProgressBar
 
     override fun createView(ui: AnkoContext<T>) = with(ui) {
 
@@ -42,11 +42,36 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
             verticalLayout {
                 lparams(matchParent, wrapContent)
 
+                progressBar = progressBar {
+                    visibility = View.GONE
+                    isIndeterminate = false
+                }.lparams {
+                    width = wrapContent
+                    height = wrapContent
+                    gravity = Gravity.CENTER
+                }
+
                 mAdapter = NotesAdapter(context)
                 mRecycler = recyclerView {
                     layoutManager = LinearLayoutManager(context)
                     adapter = mAdapter
                 }
+            }
+        }
+    }
+
+    fun showProgress() {
+        doAsync {
+            uiThread {
+                progressBar.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    fun hideProgress() {
+        doAsync {
+            uiThread {
+                progressBar.visibility = View.GONE
             }
         }
     }

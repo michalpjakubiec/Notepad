@@ -12,9 +12,12 @@ import com.example.notepad.notesList.mvi.NotesListViewState
 import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoContext
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 
@@ -23,6 +26,8 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
     override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
     override val searchIntent: Observable<String>
         get() = ui.mEtSearch.textChanges().map { it.toString() }
+    private lateinit var progressDisposable: Disposable
+
 
     override fun render(state: NotesListViewState) {
         if (ui.mEtSearch.isFocused && (state.isSearchCompleted || state.isSearchCanceled))
@@ -35,7 +40,17 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ui.mAdapter.notes = initNotes(30)
+
+        progressDisposable = searchIntent
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { ui.showProgress() }
+            .observeOn(AndroidSchedulers.mainThread())
+            .delay(2, TimeUnit.SECONDS)
+            .subscribe {
+                ui.hideProgress()
+            }
     }
+
 
     private fun initNotes(quantity: Int): List<Note> {
         val repo = NoteRepository.getInstance(context!!)
