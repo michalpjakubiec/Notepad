@@ -7,6 +7,10 @@ data class NotesListViewState(
     var isSearchCanceled: Boolean = false,
     var isSearchCompleted: Boolean = false,
     var isSearchFailed: Boolean = false,
+    var isSearchPending: Boolean = false,
+    var isNextPagePending: Boolean = false,
+    var isNextPageCompleted: Boolean = false,
+    var isNextPageFailed: Boolean = false,
     var notesList: ArrayList<Note> = ArrayList(),
     var error: String = ""
 ) : ViewStateBase
