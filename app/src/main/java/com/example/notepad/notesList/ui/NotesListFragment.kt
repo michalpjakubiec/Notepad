@@ -24,18 +24,16 @@ import java.util.concurrent.Executors
 class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), NotesListView {
     private lateinit var ui: NotesListFragmentUI<NotesListFragment>
     private val paginator: PublishProcessor<Int> = PublishProcessor.create()
+    private val db: NoteDao by lazy { NoteDatabase.get(context!!).noteDao() }
     override val searchIntent: Observable<String>
         get() = ui.mEtSearch.textChanges().map { it.toString().trim() }
     override val nextPageIntent: Observable<Int>
         get() = paginator.toObservable()
 
-    private lateinit var db: NoteDao
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupOnScrollListener()
         ioThread {
-            db = NoteDatabase.get(context!!).noteDao()
             ui.mAdapter.notes = ArrayList(db.allNotesOrderByDateLimit(10, 0))
         }
     }
@@ -51,6 +49,7 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
 
         if (ui.mEtSearch.isFocused && state.isSearchCanceled) {
             state.isSearchCanceled = false
+            ui.mAdapter.notes.clear()
             ui.mAdapter.pageNumber = -1
             paginator.onNext(ui.mAdapter.incrementPage())
         }
@@ -75,7 +74,8 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
                 val totalItemCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 2) {
-                    paginator.onNext(ui.mAdapter.incrementPage())//ui.mAdapter.incrementPage()
+                    ui.showProgress()
+                    paginator.onNext(ui.mAdapter.incrementPage())
                 }
             }
         })

@@ -30,7 +30,6 @@ class NoteViewHolderUI : AnkoComponent<ViewGroup> {
                     textSize = 18f
                 }.lparams {
                     gravity = Gravity.START
-                    margin = dip(5)
                 }
 
                 textView {
@@ -38,7 +37,8 @@ class NoteViewHolderUI : AnkoComponent<ViewGroup> {
                     textSize = 18f
                 }.lparams {
                     gravity = Gravity.CENTER
-                    margin = dip(5)
+                    rightMargin = dip(50)
+                    leftMargin = dip(50)
                 }
 
                 button {
@@ -46,12 +46,11 @@ class NoteViewHolderUI : AnkoComponent<ViewGroup> {
                     text = context.resources.getText(R.string.btArchive)
                 }.lparams {
                     gravity = Gravity.END
-                    margin = dip(5)
                 }
             }.lparams {
                 this.height = wrapContent
                 this.width = matchParent
-                margin = dip(8)
+                margin = dip(5)
             }
 
             textView {
@@ -59,7 +58,7 @@ class NoteViewHolderUI : AnkoComponent<ViewGroup> {
                 textSize = 12f
             }.lparams {
                 gravity = Gravity.START
-                margin = dip(10)
+                margin = dip(5)
             }
         }
     }.view
