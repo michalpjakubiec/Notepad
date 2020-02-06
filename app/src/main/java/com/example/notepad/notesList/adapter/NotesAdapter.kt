@@ -33,6 +33,12 @@ class NotesAdapter(
         )
     }
 
+
+    fun incrementPage(): Int {
+        pageNumber++
+        return pageNumber
+    }
+
     fun setItems(items: List<Note>) {
         this.notes.clear()
         addItems(items)

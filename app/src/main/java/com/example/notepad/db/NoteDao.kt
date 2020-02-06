@@ -1,14 +1,13 @@
 package com.example.notepad.db
 
-import androidx.paging.DataSource
 import androidx.room.*
 import com.example.notepad.db.models.Note
 
 @Dao
 interface NoteDao {
 
-    @Query("SELECT * FROM Note ORDER BY created DESC")
-    fun allNotesByDate(): List<Note>
+    @Query("SELECT * FROM Note ORDER BY created DESC LIMIT :limit OFFSET :offset")
+    fun allNotesOrderByDateLimit(limit: Int, offset: Int): List<Note>
 
     @Query("SELECT * FROM Note")
     fun allNotes(): List<Note>

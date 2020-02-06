@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.*
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.db.NoteDao
 import com.example.notepad.db.NoteDatabase
-import com.example.notepad.db.models.Note
+import com.example.notepad.db.ioThread
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
 import com.example.notepad.notesList.mvi.NotesListViewState
@@ -19,27 +19,41 @@ import io.reactivex.Observable
 import io.reactivex.processors.PublishProcessor
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.support.v4.toast
+import java.util.concurrent.Executors
 
 class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), NotesListView {
     private lateinit var ui: NotesListFragmentUI<NotesListFragment>
+    private val paginator: PublishProcessor<Int> = PublishProcessor.create()
     override val searchIntent: Observable<String>
-        get() = ui.mEtSearch.textChanges().map { it.toString() }
-    override lateinit var nextPageIntent: Observable<Int>
+        get() = ui.mEtSearch.textChanges().map { it.toString().trim() }
+    override val nextPageIntent: Observable<Int>
+        get() = paginator.toObservable()
+
+    private lateinit var db: NoteDao
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupOnScrollListener()
-        nextPageIntent = Observable.just(incrementPage())
+        ioThread {
+            db = NoteDatabase.get(context!!).noteDao()
+            ui.mAdapter.notes = ArrayList(db.allNotesOrderByDateLimit(10, 0))
+        }
     }
 
     override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
 
     override fun render(state: NotesListViewState) {
-        if (ui.mEtSearch.isFocused && (state.isSearchCompleted || state.isSearchCanceled))
+        if (ui.mEtSearch.isFocused && state.isSearchCompleted)
             ui.mAdapter.setItems(state.notesList)
 
         if (ui.mEtSearch.isFocused && state.isSearchFailed)
             ui.mEtSearch.error = state.error
+
+        if (ui.mEtSearch.isFocused && state.isSearchCanceled) {
+            state.isSearchCanceled = false
+            ui.mAdapter.pageNumber = -1
+            paginator.onNext(ui.mAdapter.incrementPage())
+        }
 
         if (state.isSearchPending || state.isNextPagePending)
             ui.showProgress()
@@ -57,20 +71,14 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
         ui.mRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                val totalItemCount = ui.layoutManager.itemCount
-                val lastVisibleItem = ui.layoutManager.findLastVisibleItemPosition()
-                if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 1) {
-                    incrementPage()
+                val layoutManager = ui.mRecycler.layoutManager as LinearLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 2) {
+                    paginator.onNext(ui.mAdapter.incrementPage())//ui.mAdapter.incrementPage()
                 }
             }
         })
-    }
-
-    private var page = 0
-
-    private fun incrementPage(): Int {
-        page++
-        return page
     }
 
     override fun onCreateView(

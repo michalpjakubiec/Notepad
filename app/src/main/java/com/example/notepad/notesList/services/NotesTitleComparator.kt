@@ -11,13 +11,7 @@ class NotesTitleComparator {
     ): Observable<NotesListSearchResult> {
 
         if (query.isEmpty())
-            return Observable.just(
-                NotesListSearchResult.Canceled(
-                    ArrayList(
-                        db.noteDao().allNotes()
-                    )
-                )
-            )
+            return Observable.just(NotesListSearchResult.Canceled)
 
         if (query.length < 3)
             return Observable.just(NotesListSearchResult.Error("Query must be longer than 2 characters"))

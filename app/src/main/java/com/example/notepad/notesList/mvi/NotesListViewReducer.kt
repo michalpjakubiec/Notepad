@@ -22,7 +22,10 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isSearchCompleted = false
                         currentState.isSearchFailed = false
                         currentState.isSearchPending = false
-                        currentState.notesList = change.searchResult.notesList
+                        currentState.isNextPagePending = false
+                        currentState.isNextPageCompleted = false
+                        currentState.isNextPageFailed = false
+                        currentState.notesList = ArrayList()
                         currentState.error = ""
                     }
 
@@ -31,6 +34,9 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isSearchCompleted = true
                         currentState.isSearchPending = false
                         currentState.isSearchFailed = false
+                        currentState.isNextPagePending = false
+                        currentState.isNextPageCompleted = false
+                        currentState.isNextPageFailed = false
                         currentState.notesList = change.searchResult.notesList
                         currentState.error = ""
                     }
@@ -40,6 +46,9 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isSearchCompleted = false
                         currentState.isSearchPending = false
                         currentState.isSearchFailed = true
+                        currentState.isNextPagePending = false
+                        currentState.isNextPageCompleted = false
+                        currentState.isNextPageFailed = false
                         currentState.notesList = ArrayList()
                         currentState.error = change.searchResult.error
                     }
@@ -48,6 +57,9 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isSearchCompleted = false
                         currentState.isSearchFailed = false
                         currentState.isSearchPending = true
+                        currentState.isNextPagePending = false
+                        currentState.isNextPageCompleted = false
+                        currentState.isNextPageFailed = false
                         currentState.notesList = ArrayList()
                         currentState.error = ""
                     }
@@ -57,6 +69,10 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
             is NotesListViewStateChange.NotesPageChanged -> {
                 when (change.nextPageResult) {
                     is NotesListNextPageResult.Completed -> {
+                        currentState.isSearchCanceled = false
+                        currentState.isSearchCompleted = false
+                        currentState.isSearchFailed = false
+                        currentState.isSearchPending = false
                         currentState.isNextPagePending = false
                         currentState.isNextPageCompleted = true
                         currentState.isNextPageFailed = false
@@ -65,6 +81,10 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                     }
 
                     is NotesListNextPageResult.Error -> {
+                        currentState.isSearchCanceled = false
+                        currentState.isSearchCompleted = false
+                        currentState.isSearchFailed = false
+                        currentState.isSearchPending = false
                         currentState.isNextPagePending = false
                         currentState.isNextPageCompleted = false
                         currentState.isNextPageFailed = true
@@ -72,6 +92,10 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.error = change.nextPageResult.error
                     }
                     is NotesListNextPageResult.Pending -> {
+                        currentState.isSearchCanceled = false
+                        currentState.isSearchCompleted = false
+                        currentState.isSearchFailed = false
+                        currentState.isSearchPending = false
                         currentState.isNextPagePending = true
                         currentState.isNextPageCompleted = false
                         currentState.isNextPageFailed = false

@@ -20,7 +20,6 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
     lateinit var mRecycler: RecyclerView
     lateinit var mAdapter: NotesAdapter
     lateinit var progressBar: ProgressBar
-    lateinit var layoutManager: LinearLayoutManager
     var isProgressVisible = false
 
     override fun createView(ui: AnkoContext<T>) = with(ui) {
@@ -55,9 +54,8 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
 
 
             mAdapter = NotesAdapter(context)
-            layoutManager = LinearLayoutManager(context)
             mRecycler = recyclerView {
-                layoutManager = layoutManager
+                layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
             }
         }
