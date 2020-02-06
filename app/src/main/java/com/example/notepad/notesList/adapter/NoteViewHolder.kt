@@ -8,6 +8,9 @@ import com.example.notepad.R
 import com.example.notepad.db.models.Note
 import com.example.notepad.utils.toSimpleString
 import kotlinx.android.extensions.LayoutContainer
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
+import java.util.*
 
 class NoteViewHolder(override val containerView: View) :
     RecyclerView.ViewHolder(containerView),
@@ -18,20 +21,33 @@ class NoteViewHolder(override val containerView: View) :
     private val tvShortContent: TextView = itemView.findViewById(NoteViewHolderUI.tvContentId)
     val btArchive: Button = itemView.findViewById(NoteViewHolderUI.btArchiveId)
 
-    fun bindItem(item: Note, position: Int) {
-        tvTitle.text = item.title
-        tvDate.text = item.created.toSimpleString()
-        tvShortContent.text = item.content?.take(50)
+    fun bindItem(item: Note?, position: Int) {
+        tvTitle.text = item?.title
+        if (item != null)
+            tvDate.text = Date(item.created).toSimpleString()
 
-        if (item.isArchival == true) {
+        tvShortContent.text = item?.content?.take(50)
+
+        if (item?.isArchival == true) {
             btArchive.visibility = View.GONE
         } else {
             btArchive.visibility = View.VISIBLE
         }
 
         itemView.setBackgroundColor(
-            itemView.context.resources.getColor(getBackgroundColor(position, item.isArchival))
+            itemView.context.resources.getColor(getBackgroundColor(position, item?.isArchival))
         )
+    }
+
+    fun setItemViewArchivalTheme(view: View, btn: Button, isArchival: Boolean?) {
+        doAsync {
+            this.uiThread {
+                if (isArchival == true) {
+                    btn.visibility = View.GONE
+                    view.setBackgroundColor(view.context.getColor(R.color.colorArchive))
+                }
+            }
+        }
     }
 
     private fun getBackgroundColor(position: Int, isArchival: Boolean?): Int {

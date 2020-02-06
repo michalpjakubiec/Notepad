@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
+apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 
 android {
@@ -32,6 +31,12 @@ dependencies {
     implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+    implementation "androidx.paging:paging-common-ktx:$paging_version"
+    implementation "androidx.paging:paging-rxjava2-ktx:$paging_version"
+    implementation "androidx.sqlite:sqlite-ktx:$sqlite_version"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'com.hannesdorfmann.mosby3:mvi:3.1.0'
@@ -42,7 +47,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.2.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.2.0'
+    implementation "androidx.navigation:navigation-ui-ktx:2.2.0"
     implementation "com.squareup.retrofit2:converter-gson:2.4.0"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

@@ -20,27 +20,28 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
     lateinit var mRecycler: RecyclerView
     lateinit var mAdapter: NotesAdapter
     lateinit var progressBar: ProgressBar
+    lateinit var layoutManager: LinearLayoutManager
+    var isProgressVisible = false
 
     override fun createView(ui: AnkoContext<T>) = with(ui) {
 
         verticalLayout {
             lparams(matchParent, matchParent)
 
-            textInputLayout {
-                isErrorEnabled = true
-
-                mEtSearch = textInputEditText {
-                    textSize = 16f
-                    hint = context.resources.getString(R.string.search)
-                    layoutParams = LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                }//.lparams(matchParent, matchParent) java.lang.ClassCastException:
-            }.lparams(matchParent, wrapContent)
-
             verticalLayout {
                 lparams(matchParent, wrapContent)
+                textInputLayout {
+                    isErrorEnabled = true
+
+                    mEtSearch = textInputEditText {
+                        textSize = 16f
+                        hint = context.resources.getString(R.string.search)
+                        layoutParams = LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                    }//.lparams(matchParent, matchParent) java.lang.ClassCastException:
+                }.lparams(matchParent, wrapContent)
 
                 progressBar = progressBar {
                     visibility = View.GONE
@@ -50,12 +51,14 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
                     height = wrapContent
                     gravity = Gravity.CENTER
                 }
+            }
 
-                mAdapter = NotesAdapter(context)
-                mRecycler = recyclerView {
-                    layoutManager = LinearLayoutManager(context)
-                    adapter = mAdapter
-                }
+
+            mAdapter = NotesAdapter(context)
+            layoutManager = LinearLayoutManager(context)
+            mRecycler = recyclerView {
+                layoutManager = layoutManager
+                adapter = mAdapter
             }
         }
     }
@@ -64,6 +67,7 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
         doAsync {
             uiThread {
                 progressBar.visibility = View.VISIBLE
+                isProgressVisible = true
             }
         }
     }
@@ -72,6 +76,7 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
         doAsync {
             uiThread {
                 progressBar.visibility = View.GONE
+                isProgressVisible = false
             }
         }
     }

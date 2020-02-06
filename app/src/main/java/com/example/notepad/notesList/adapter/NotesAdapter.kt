@@ -1,32 +1,25 @@
 package com.example.notepad.notesList.adapter
 
 import android.content.Context
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notepad.R
-import com.example.notepad.db.NoteRepository
+import com.example.notepad.db.NoteDatabase
 import com.example.notepad.db.models.Note
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoContext
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+
 
 class NotesAdapter(
     private val context: Context
 ) : RecyclerView.Adapter<NoteViewHolder>() {
 
-    var notes: List<Note> = listOf()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+    var notes: ArrayList<Note> = ArrayList()
+    var pageNumber: Int = 0
     private var compositeDisposable = CompositeDisposable()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
@@ -38,6 +31,16 @@ class NotesAdapter(
                 )
             )
         )
+    }
+
+    fun setItems(items: List<Note>) {
+        this.notes.clear()
+        addItems(items)
+    }
+
+    fun addItems(items: List<Note>) {
+        notes.addAll(items)
+        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
@@ -55,26 +58,15 @@ class NotesAdapter(
         }.observeOn(Schedulers.io())
             .map {
                 note.isArchival = true
-                val database = NoteRepository.getInstance(holder.itemView.context)
+                val database = NoteDatabase.get(holder.itemView.context).noteDao()
                 database.update(note)
 
                 note.isArchival
             }.subscribeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                setItemViewArchivalTheme(holder.itemView, holder.btArchive, it)
+                holder.setItemViewArchivalTheme(holder.itemView, holder.btArchive, it)
             }
         )
-    }
-
-    private fun setItemViewArchivalTheme(view: View, btn: Button, isArchival: Boolean?) {
-        doAsync {
-            this.uiThread {
-                if (isArchival == true) {
-                    btn.visibility = View.GONE
-                    view.setBackgroundColor(view.context.getColor(R.color.colorArchive))
-                }
-            }
-        }
     }
 
     override fun getItemCount(): Int = notes.size

@@ -4,76 +4,73 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.notepad.db.NoteRepository
+import androidx.paging.*
+import androidx.recyclerview.widget.RecyclerView
+import com.example.notepad.db.NoteDao
+import com.example.notepad.db.NoteDatabase
 import com.example.notepad.db.models.Note
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
 import com.example.notepad.notesList.mvi.NotesListViewState
 import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.widget.textChanges
+import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.processors.PublishProcessor
 import org.jetbrains.anko.AnkoContext
-import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
-import kotlin.random.Random
+import org.jetbrains.anko.support.v4.toast
 
 class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), NotesListView {
     private lateinit var ui: NotesListFragmentUI<NotesListFragment>
-    override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
     override val searchIntent: Observable<String>
         get() = ui.mEtSearch.textChanges().map { it.toString() }
-    private lateinit var progressDisposable: Disposable
-
-
-    override fun render(state: NotesListViewState) {
-        if (ui.mEtSearch.isFocused && (state.isSearchCompleted || state.isSearchCanceled))
-            ui.mAdapter.notes = state.notesList
-
-        if (ui.mEtSearch.isFocused && state.isSearchFailed)
-            ui.mEtSearch.error = state.error
-        if (state.isSearchPending)
-            ui.showProgress()
-        else
-            ui.hideProgress()
-    }
+    override lateinit var nextPageIntent: Observable<Int>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ui.mAdapter.notes = initNotes(30)
-
-//        progressDisposable = searchIntent
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .doOnNext { ui.showProgress() }
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .delay(2, TimeUnit.SECONDS)
-//            .subscribe {
-//                ui.hideProgress()
-//            }
+        setupOnScrollListener()
+        nextPageIntent = Observable.just(incrementPage())
     }
 
+    override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
 
-    private fun initNotes(quantity: Int): List<Note> {
-        val repo = NoteRepository.getInstance(context!!)
+    override fun render(state: NotesListViewState) {
+        if (ui.mEtSearch.isFocused && (state.isSearchCompleted || state.isSearchCanceled))
+            ui.mAdapter.setItems(state.notesList)
 
-        var notes = repo.getAll(NoteRepository.notesTableKey)
-        if (notes.isNotEmpty())
-            return notes
+        if (ui.mEtSearch.isFocused && state.isSearchFailed)
+            ui.mEtSearch.error = state.error
 
-        val charPool: List<Char> = ('a'..'z') + ('A'..'Z')
-        notes = ArrayList()
-        for (i in 1..quantity) {
-            notes.add(Note(UUID.randomUUID().toString(), Date(), "Title $i",
-                (1..150).map { Random.nextInt(0, charPool.size) }
-                    .map(charPool::get)
-                    .joinToString(""), false))
-        }
+        if (state.isSearchPending || state.isNextPagePending)
+            ui.showProgress()
+        else
+            ui.hideProgress()
 
-        repo.save(NoteRepository.notesTableKey, notes)
-        return notes
+        if (state.isNextPageCompleted)
+            ui.mAdapter.addItems(state.notesList)
+
+        if (state.isNextPageFailed)
+            toast(state.error)
+    }
+
+    private fun setupOnScrollListener() {
+        ui.mRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val totalItemCount = ui.layoutManager.itemCount
+                val lastVisibleItem = ui.layoutManager.findLastVisibleItemPosition()
+                if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 1) {
+                    incrementPage()
+                }
+            }
+        })
+    }
+
+    private var page = 0
+
+    private fun incrementPage(): Int {
+        page++
+        return page
     }
 
     override fun onCreateView(
