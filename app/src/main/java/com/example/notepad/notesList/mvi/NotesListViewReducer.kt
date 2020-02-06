@@ -2,7 +2,6 @@ package com.example.notepad.notesList.mvi
 
 import android.util.Log
 import com.example.notepad.base.ReducerBase
-import com.example.notepad.notesList.utils.NotesListArchiveResult
 import com.example.notepad.notesList.utils.NotesListSearchResult
 
 class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateChange> {
@@ -21,6 +20,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isSearchCanceled = true
                         currentState.isSearchCompleted = false
                         currentState.isSearchFailed = false
+                        currentState.isSearchPending = false
                         currentState.notesList = change.searchResult.notesList
                         currentState.error = ""
                     }
@@ -28,6 +28,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                     is NotesListSearchResult.Completed -> {
                         currentState.isSearchCanceled = false
                         currentState.isSearchCompleted = true
+                        currentState.isSearchPending = false
                         currentState.isSearchFailed = false
                         currentState.notesList = change.searchResult.notesList
                         currentState.error = ""
@@ -36,9 +37,18 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                     is NotesListSearchResult.Error -> {
                         currentState.isSearchCanceled = false
                         currentState.isSearchCompleted = false
+                        currentState.isSearchPending = false
                         currentState.isSearchFailed = true
                         currentState.notesList = ArrayList()
                         currentState.error = change.searchResult.error
+                    }
+                    is NotesListSearchResult.Pending -> {
+                        currentState.isSearchCanceled = false
+                        currentState.isSearchCompleted = false
+                        currentState.isSearchFailed = false
+                        currentState.isSearchPending = true
+                        currentState.notesList = ArrayList()
+                        currentState.error = ""
                     }
                 }
             }

@@ -35,20 +35,24 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
 
         if (ui.mEtSearch.isFocused && state.isSearchFailed)
             ui.mEtSearch.error = state.error
+        if (state.isSearchPending)
+            ui.showProgress()
+        else
+            ui.hideProgress()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ui.mAdapter.notes = initNotes(30)
 
-        progressDisposable = searchIntent
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext { ui.showProgress() }
-            .observeOn(AndroidSchedulers.mainThread())
-            .delay(2, TimeUnit.SECONDS)
-            .subscribe {
-                ui.hideProgress()
-            }
+//        progressDisposable = searchIntent
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .doOnNext { ui.showProgress() }
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .delay(2, TimeUnit.SECONDS)
+//            .subscribe {
+//                ui.hideProgress()
+//            }
     }
 
 

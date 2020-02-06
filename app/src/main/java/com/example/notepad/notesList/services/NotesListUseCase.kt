@@ -3,6 +3,7 @@ package com.example.notepad.notesList.services
 import com.example.notepad.db.NoteRepository
 import com.example.notepad.notesList.utils.NotesListSearchResult
 import io.reactivex.Observable
+import java.util.concurrent.TimeUnit
 
 class NotesListUseCase {
 
@@ -12,6 +13,6 @@ class NotesListUseCase {
         query: String,
         noteRepository: NoteRepository
     ): Observable<NotesListSearchResult> {
-        return comparator.compareTitles(query, noteRepository)
+        return comparator.compareTitles(query, noteRepository).delay(2, TimeUnit.SECONDS)
     }
 }
