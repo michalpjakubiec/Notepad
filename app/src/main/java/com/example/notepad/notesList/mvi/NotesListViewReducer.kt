@@ -2,6 +2,7 @@ package com.example.notepad.notesList.mvi
 
 import android.util.Log
 import com.example.notepad.base.ReducerBase
+import com.example.notepad.notesList.utils.NotesListDeleteNoteResult
 import com.example.notepad.notesList.utils.NotesListNextPageResult
 import com.example.notepad.notesList.utils.NotesListSearchResult
 
@@ -26,6 +27,8 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isNextPageCompleted = false
                         currentState.isNextPageFailed = false
                         currentState.notesList = ArrayList()
+                        currentState.isDeleteCompleted = false
+                        currentState.deletedNoteId = -1
                         currentState.error = ""
                     }
 
@@ -38,6 +41,8 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isNextPageCompleted = false
                         currentState.isNextPageFailed = false
                         currentState.notesList = change.searchResult.notesList
+                        currentState.isDeleteCompleted = false
+                        currentState.deletedNoteId = -1
                         currentState.error = ""
                     }
 
@@ -50,6 +55,8 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isNextPageCompleted = false
                         currentState.isNextPageFailed = false
                         currentState.notesList = ArrayList()
+                        currentState.isDeleteCompleted = false
+                        currentState.deletedNoteId = -1
                         currentState.error = change.searchResult.error
                     }
                     is NotesListSearchResult.Pending -> {
@@ -61,6 +68,8 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isNextPageCompleted = false
                         currentState.isNextPageFailed = false
                         currentState.notesList = ArrayList()
+                        currentState.isDeleteCompleted = false
+                        currentState.deletedNoteId = -1
                         currentState.error = ""
                     }
                 }
@@ -77,6 +86,8 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isNextPageCompleted = true
                         currentState.isNextPageFailed = false
                         currentState.notesList = change.nextPageResult.notesList
+                        currentState.isDeleteCompleted = false
+                        currentState.deletedNoteId = -1
                         currentState.error = ""
                     }
 
@@ -89,6 +100,8 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isNextPageCompleted = false
                         currentState.isNextPageFailed = true
                         currentState.notesList = ArrayList()
+                        currentState.isDeleteCompleted = false
+                        currentState.deletedNoteId = -1
                         currentState.error = change.nextPageResult.error
                     }
                     is NotesListNextPageResult.Pending -> {
@@ -100,8 +113,26 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.isNextPageCompleted = false
                         currentState.isNextPageFailed = false
                         currentState.notesList = ArrayList()
+                        currentState.isDeleteCompleted = false
+                        currentState.deletedNoteId = -1
                         currentState.error = ""
                     }
+                }
+            }
+
+            is NotesListViewStateChange.NoteDeleted -> {
+                if (change.deleteNoteResult is NotesListDeleteNoteResult.Completed) {
+                    currentState.isSearchCanceled = false
+                    currentState.isSearchCompleted = false
+                    currentState.isSearchFailed = false
+                    currentState.isSearchPending = false
+                    currentState.isNextPagePending = false
+                    currentState.isNextPageCompleted = false
+                    currentState.isNextPageFailed = false
+                    currentState.notesList = ArrayList()
+                    currentState.isDeleteCompleted = true
+                    currentState.deletedNoteId = change.deleteNoteResult.id
+                    currentState.error = ""
                 }
             }
         }

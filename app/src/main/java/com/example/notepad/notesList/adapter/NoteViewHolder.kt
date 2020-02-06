@@ -20,22 +20,23 @@ class NoteViewHolder(override val containerView: View) :
     private val tvDate: TextView = itemView.findViewById(NoteViewHolderUI.tvDateId)
     private val tvShortContent: TextView = itemView.findViewById(NoteViewHolderUI.tvContentId)
     val btArchive: Button = itemView.findViewById(NoteViewHolderUI.btArchiveId)
+    lateinit var note: Note
 
-    fun bindItem(item: Note?, position: Int) {
-        tvTitle.text = item?.title
-        if (item != null)
-            tvDate.text = Date(item.created).toSimpleString()
+    fun bindItem(item: Note, position: Int) {
+        note = item
 
-        tvShortContent.text = item?.content?.take(50)
+        tvTitle.text = item.title
+        tvDate.text = Date(item.created).toSimpleString()
+        tvShortContent.text = item.content?.take(50)
 
-        if (item?.isArchival == true) {
+        if (item.isArchival) {
             btArchive.visibility = View.GONE
         } else {
             btArchive.visibility = View.VISIBLE
         }
 
         itemView.setBackgroundColor(
-            itemView.context.resources.getColor(getBackgroundColor(position, item?.isArchival))
+            itemView.context.resources.getColor(getBackgroundColor(position, item.isArchival))
         )
     }
 

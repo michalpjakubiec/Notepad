@@ -39,8 +39,17 @@ class NotesListPresenter(context: Context) :
             .observeOn(AndroidSchedulers.mainThread())
             .map { NotesListViewStateChange.NotesPageChanged(it) }
 
+        val deleteNoteIntent = intent { it.deleteIntent }
+            .observeOn(Schedulers.io())
+            .switchMap {
+                useCase.deleteNote(it, db)
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { NotesListViewStateChange.NoteDeleted(it) }
 
-        val stream = Observable.merge(searchIntent, nextPageIntent)
+
+        val stream = Observable
+            .merge(searchIntent, nextPageIntent, deleteNoteIntent)
             .scan(NotesListViewState()) { state: NotesListViewState, change: NotesListViewStateChange ->
                 return@scan reducer.reduce(state, change)
             }

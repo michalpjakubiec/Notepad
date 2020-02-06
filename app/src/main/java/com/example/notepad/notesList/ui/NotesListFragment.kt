@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.db.NoteDao
 import com.example.notepad.db.NoteDatabase
 import com.example.notepad.db.ioThread
+import com.example.notepad.db.models.Note
+import com.example.notepad.notesList.adapter.NoteViewHolder
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
 import com.example.notepad.notesList.mvi.NotesListViewState
@@ -23,18 +26,23 @@ import java.util.concurrent.Executors
 
 class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), NotesListView {
     private lateinit var ui: NotesListFragmentUI<NotesListFragment>
-    private val paginator: PublishProcessor<Int> = PublishProcessor.create()
     private val db: NoteDao by lazy { NoteDatabase.get(context!!).noteDao() }
+    private val nextPagePublisher: PublishProcessor<Int> = PublishProcessor.create()
+    private val deletePublisher: PublishProcessor<Note> = PublishProcessor.create()
+
     override val searchIntent: Observable<String>
         get() = ui.mEtSearch.textChanges().map { it.toString().trim() }
     override val nextPageIntent: Observable<Int>
-        get() = paginator.toObservable()
+        get() = nextPagePublisher.toObservable()
+    override val deleteIntent: Observable<Note>
+        get() = deletePublisher.toObservable()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupOnScrollListener()
+        initSwipeToDelete()
         ioThread {
-            ui.mAdapter.notes = ArrayList(db.allNotesOrderByDateLimit(10, 0))
+            ui.mAdapter.setItems(ArrayList(db.allNotesOrderByDateLimit(10, 0)))
         }
     }
 
@@ -51,7 +59,7 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
             state.isSearchCanceled = false
             ui.mAdapter.notes.clear()
             ui.mAdapter.pageNumber = -1
-            paginator.onNext(ui.mAdapter.incrementPage())
+            nextPagePublisher.onNext(ui.mAdapter.incrementPage())
         }
 
         if (state.isSearchPending || state.isNextPagePending)
@@ -64,6 +72,9 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
 
         if (state.isNextPageFailed)
             toast(state.error)
+
+        if (state.isDeleteCompleted && state.deletedNoteId != -1)
+            ui.mAdapter.deletedItem(state.deletedNoteId)
     }
 
     private fun setupOnScrollListener() {
@@ -75,10 +86,29 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 2) {
                     ui.showProgress()
-                    paginator.onNext(ui.mAdapter.incrementPage())
+                    nextPagePublisher.onNext(ui.mAdapter.incrementPage())
                 }
             }
         })
+    }
+
+    private fun initSwipeToDelete() {
+        ItemTouchHelper(object : ItemTouchHelper.Callback() {
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int =
+                makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+
+            override fun onMove(
+                recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                deletePublisher.onNext((viewHolder as NoteViewHolder).note)
+            }
+        }).attachToRecyclerView(ui.mRecycler)
     }
 
     override fun onCreateView(

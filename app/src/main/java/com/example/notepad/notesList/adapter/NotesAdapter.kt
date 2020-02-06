@@ -12,6 +12,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.AnkoContext
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 
 class NotesAdapter(
@@ -33,6 +35,11 @@ class NotesAdapter(
         )
     }
 
+    fun deletedItem(id: Int) {
+        val item = notes.firstOrNull { it.id == id }
+        item ?: return
+        this.notifyItemRemoved(notes.indexOf(item))
+    }
 
     fun incrementPage(): Int {
         pageNumber++
@@ -46,7 +53,11 @@ class NotesAdapter(
 
     fun addItems(items: List<Note>) {
         notes.addAll(items)
-        notifyDataSetChanged()
+        doAsync {
+            uiThread {
+                notifyDataSetChanged()
+            }
+        }
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
