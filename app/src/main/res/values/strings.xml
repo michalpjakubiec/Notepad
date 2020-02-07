@@ -2,4 +2,6 @@
     <string name="app_name">Notepad</string>
     <string name="search">Search…</string>
     <string name="btArchive">Archive</string>
+
+    <string name="progressAlert">Fetching data…</string>
 </resources>
