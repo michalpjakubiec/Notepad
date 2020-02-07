@@ -48,15 +48,6 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
                         currentState.isValidationCanceled = false
                         currentState.error = change.validationResult.error
                     }
-
-                    is NoteValidationResult.Canceled -> {
-                        currentState.isSavingCompleted = false
-                        currentState.isSavingFailed = false
-                        currentState.isValidationCompleted = false
-                        currentState.isValidationFailed = false
-                        currentState.isValidationCanceled = true
-                        currentState.error = ""
-                    }
                 }
             }
         }
