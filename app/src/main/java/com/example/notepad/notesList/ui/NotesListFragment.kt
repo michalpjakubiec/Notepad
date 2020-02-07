@@ -1,5 +1,6 @@
 package com.example.notepad.notesList.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,8 @@ import com.example.notepad.db.NoteDao
 import com.example.notepad.db.NoteDatabase
 import com.example.notepad.db.ioThread
 import com.example.notepad.db.models.Note
+import com.example.notepad.main.MainActivity
+import com.example.notepad.note.ui.NoteFragment
 import com.example.notepad.notesList.adapter.NoteViewHolder
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
@@ -20,14 +23,18 @@ import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
 import io.reactivex.processors.PublishProcessor
 import org.jetbrains.anko.AnkoContext
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.support.v4.toast
 
 
 class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), NotesListView {
     private lateinit var ui: NotesListFragmentUI<NotesListFragment>
-    private val db: NoteDao by lazy { NoteDatabase.get(context!!).noteDao() }
+    //    private var db: NoteDao by lazy { NoteDatabase.get(context!!).noteDao() }
+    private lateinit var db: NoteDao
     private val nextPagePublisher: PublishProcessor<Pair<Int, String>> = PublishProcessor.create()
     private val deletePublisher: PublishProcessor<Note> = PublishProcessor.create()
+    private val addPublisher: PublishProcessor<Unit> = PublishProcessor.create()
+    private lateinit var mainActivity: MainActivity
 
     override val searchIntent: Observable<String>
         get() = ui.mEtSearch.textChanges().map { it.toString().trim() }
@@ -35,11 +42,17 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
         get() = nextPagePublisher.toObservable()
     override val deleteIntent: Observable<Note>
         get() = deletePublisher.toObservable()
+    override val addIntent: Observable<Unit>
+        get() = addPublisher.toObservable()
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        db = NoteDatabase.get(context!!).noteDao()
+
         setupOnScrollListener()
         initSwipeToDelete()
+        initOnAddListener()
         reloadData()
     }
 
@@ -70,6 +83,14 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
 
         if (state.isDeleteCompleted && state.deletedNoteId != -1)
             ui.mAdapter.deletedItem(state.deletedNoteId)
+
+        if (state.isAddingCompleted) {
+            mainActivity.replaceFragment(NoteFragment())
+        }
+    }
+
+    private fun initOnAddListener() {
+        ui.fabAdd.onClick { addPublisher.onNext(Unit) }
     }
 
     private fun setupOnScrollListener() {
@@ -92,6 +113,12 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
                 }
             }
         })
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is MainActivity)
+            this.mainActivity = context
     }
 
     private fun reloadData() {

@@ -3,5 +3,8 @@
     <string name="search">Search…</string>
     <string name="btArchive">Archive</string>
 
-    <string name="progressAlert">Fetching data…</string>
+    <string name="titleHint">Title</string>
+    <string name="contentHint">Content</string>
+    <string name="notesSavedToast">Note saved</string>
+    <string name="toolBarSaveTitle">Save</string>
 </resources>

@@ -46,7 +46,7 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
                                 ViewGroup.LayoutParams.MATCH_PARENT
                             )
                     }//.lparams(matchParent, matchParent) java.lang.ClassCastException:
-                }.lparams{
+                }.lparams {
                     width = matchParent
                     height = wrapContent
                 }
@@ -83,21 +83,32 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
     }
 
     fun showProgress() {
-        doAsync {
-            uiThread {
-                isProgressVisible = true
-                progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                progressDialog.show()
-            }
-        }
+        isProgressVisible = true
+        progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        progressDialog.show()
     }
 
     fun hideProgress() {
-        doAsync {
-            uiThread {
-                isProgressVisible = false
-                progressDialog.hide()
-            }
-        }
+        isProgressVisible = false
+        progressDialog.dismiss()
     }
+
+//    fun showProgress() {
+//        doAsync {
+//            uiThread {
+//                isProgressVisible = true
+//                progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//                progressDialog.show()
+//            }
+//        }
+//    }
+//
+//    fun hideProgress() {
+//        doAsync {
+//            uiThread {
+//                isProgressVisible = false
+//                progressDialog.dismiss()
+//            }
+//        }
+//    }
 }

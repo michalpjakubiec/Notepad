@@ -13,6 +13,7 @@ data class NotesListViewState(
     var isNextPageFailed: Boolean = false,
     var notesList: ArrayList<Note> = ArrayList(),
     var isDeleteCompleted: Boolean = false,
+    var isAddingCompleted: Boolean = false,
     var deletedNoteId: Int = -1,
     var error: String = ""
 ) : ViewStateBase
