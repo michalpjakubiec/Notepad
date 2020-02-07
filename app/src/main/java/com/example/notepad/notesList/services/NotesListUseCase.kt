@@ -20,10 +20,10 @@ class NotesListUseCase {
     }
 
     fun loadNextPage(
-        page: Int,
+        pageSearchPair: Pair<Int, String>,
         db: NoteDatabase
     ): Observable<NotesListNextPageResult> {
-        return loader.loadPage(page, db)
+        return loader.loadPage(pageSearchPair, db)
     }
 
     fun deleteNote(note: Note, db: NoteDatabase): Observable<NotesListDeleteNoteResult> {

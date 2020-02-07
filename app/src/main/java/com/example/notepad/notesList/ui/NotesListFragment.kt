@@ -17,22 +17,21 @@ import com.example.notepad.notesList.mvi.NotesListView
 import com.example.notepad.notesList.mvi.NotesListViewState
 import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.widget.textChanges
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.processors.PublishProcessor
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.support.v4.toast
-import java.util.concurrent.Executors
+
 
 class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), NotesListView {
     private lateinit var ui: NotesListFragmentUI<NotesListFragment>
     private val db: NoteDao by lazy { NoteDatabase.get(context!!).noteDao() }
-    private val nextPagePublisher: PublishProcessor<Int> = PublishProcessor.create()
+    private val nextPagePublisher: PublishProcessor<Pair<Int, String>> = PublishProcessor.create()
     private val deletePublisher: PublishProcessor<Note> = PublishProcessor.create()
 
     override val searchIntent: Observable<String>
         get() = ui.mEtSearch.textChanges().map { it.toString().trim() }
-    override val nextPageIntent: Observable<Int>
+    override val nextPageIntent: Observable<Pair<Int, String>>
         get() = nextPagePublisher.toObservable()
     override val deleteIntent: Observable<Note>
         get() = deletePublisher.toObservable()
@@ -41,9 +40,7 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
         super.onViewCreated(view, savedInstanceState)
         setupOnScrollListener()
         initSwipeToDelete()
-        ioThread {
-            ui.mAdapter.setItems(ArrayList(db.allNotesOrderByDateLimit(10, 0)))
-        }
+        reloadData()
     }
 
     override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
@@ -57,9 +54,7 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
 
         if (ui.mEtSearch.isFocused && state.isSearchCanceled) {
             state.isSearchCanceled = false
-            ui.mAdapter.notes.clear()
-            ui.mAdapter.pageNumber = -1
-            nextPagePublisher.onNext(ui.mAdapter.incrementPage())
+            reloadData()
         }
 
         if (state.isSearchPending || state.isNextPagePending)
@@ -84,12 +79,26 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
                 val layoutManager = ui.mRecycler.layoutManager as LinearLayoutManager
                 val totalItemCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
                 if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 2) {
                     ui.showProgress()
-                    nextPagePublisher.onNext(ui.mAdapter.incrementPage())
+                    nextPagePublisher.onNext(
+                        Pair(
+                            ui.mAdapter.incrementPage(),
+                            ui.mEtSearch.text.toString()
+                        )
+                    )
+                    return
                 }
             }
         })
+    }
+
+    private fun reloadData() {
+        ioThread {
+            ui.mAdapter.pageNumber = 0
+            ui.mAdapter.setItems(ArrayList(db.allNotesOrderByDateLimitSkip(10, 0)))
+        }
     }
 
     private fun initSwipeToDelete() {

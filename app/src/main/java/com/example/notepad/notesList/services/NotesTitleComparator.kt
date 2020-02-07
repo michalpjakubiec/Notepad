@@ -19,8 +19,10 @@ class NotesTitleComparator {
         return Observable.just(
             NotesListSearchResult.Completed(
                 ArrayList(
-                    db.noteDao().allNotesFilterByTitle(
-                        query
+                    db.noteDao().allNotesFilterByTitleOrderByDateLimitSkip(
+                        query,
+                        10,
+                        0
                     )
                 )
             )

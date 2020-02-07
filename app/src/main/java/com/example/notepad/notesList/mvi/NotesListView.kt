@@ -6,7 +6,7 @@ import io.reactivex.Observable
 
 interface NotesListView : MvpView {
     val searchIntent: Observable<String>
-    val nextPageIntent: Observable<Int>
+    val nextPageIntent: Observable<Pair<Int, String>>
     val deleteIntent: Observable<Note>
 
     fun render(state: NotesListViewState)
