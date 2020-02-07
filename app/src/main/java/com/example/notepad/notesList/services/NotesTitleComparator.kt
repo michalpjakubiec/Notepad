@@ -4,28 +4,32 @@ import com.example.notepad.db.NoteDatabase
 import com.example.notepad.notesList.utils.NotesListSearchResult
 import com.example.notepad.utils.filterByTitle
 import io.reactivex.Observable
+import java.lang.Exception
 
 class NotesTitleComparator {
     fun compareTitles(
         query: String, db: NoteDatabase
     ): Observable<NotesListSearchResult> {
+        try {
+            if (query.isEmpty())
+                return Observable.just(NotesListSearchResult.Canceled)
 
-        if (query.isEmpty())
-            return Observable.just(NotesListSearchResult.Canceled)
+            if (query.length < 3)
+                return Observable.just(NotesListSearchResult.Error("Query must be longer than 2 characters"))
 
-        if (query.length < 3)
-            return Observable.just(NotesListSearchResult.Error("Query must be longer than 2 characters"))
-
-        return Observable.just(
-            NotesListSearchResult.Completed(
-                ArrayList(
-                    db.noteDao().allNotesFilterByTitleOrderByDateLimitSkip(
-                        query,
-                        10,
-                        0
+            return Observable.just(
+                NotesListSearchResult.Completed(
+                    ArrayList(
+                        db.noteDao().allNotesFilterByTitleOrderByDateLimitSkip(
+                            query,
+                            10,
+                            0
+                        )
                     )
                 )
             )
-        )
+        } catch (ex: Exception) {
+            return Observable.just(NotesListSearchResult.Error(ex.toString()))
+        }
     }
 }
