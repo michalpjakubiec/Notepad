@@ -11,6 +11,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -22,7 +23,7 @@ class NotesAdapter(
 
     var notes: ArrayList<Note> = ArrayList()
     var pageNumber: Int = 0
-    private var compositeDisposable = CompositeDisposable()
+    val updateItemSubject: PublishSubject<Note> = PublishSubject.create()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         return NoteViewHolder(
@@ -60,30 +61,20 @@ class NotesAdapter(
         }
     }
 
+
+    //DiffUtil && AsyncDiffUtil
+    private fun setItemArchive(item: Note) {
+        updateItemSubject.onNext(item)
+    }
+
+    fun refreshItemView(item: Note) {
+        val index = this.notes.indexOf(item)
+        this.notifyItemChanged(index)
+    }
+
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val note = notes[position]
-        holder.bindItem(note, position)
-
-        compositeDisposable.add(Observable.create<Boolean> { emitter ->
-            holder.btArchive.setOnClickListener {
-                emitter.onNext((it as Button).isVisible)
-            }
-            emitter.setCancellable {
-                holder.btArchive.setOnClickListener(null)
-            }
-
-        }.observeOn(Schedulers.io())
-            .map {
-                note.isArchival = true
-                val database = NoteDatabase.get(holder.itemView.context).noteDao()
-                database.update(note)
-
-                note.isArchival
-            }.subscribeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                holder.setItemViewArchivalTheme(holder.itemView, holder.btArchive, it)
-            }
-        )
+        holder.bindItem(note, position, this::setItemArchive)
     }
 
     override fun getItemCount(): Int = notes.size

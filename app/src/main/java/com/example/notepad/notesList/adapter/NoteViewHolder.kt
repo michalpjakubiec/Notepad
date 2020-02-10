@@ -19,10 +19,10 @@ class NoteViewHolder(override val containerView: View) :
     private val tvTitle: TextView = itemView.findViewById(NoteViewHolderUI.tvTitleId)
     private val tvDate: TextView = itemView.findViewById(NoteViewHolderUI.tvDateId)
     private val tvShortContent: TextView = itemView.findViewById(NoteViewHolderUI.tvContentId)
-    val btArchive: Button = itemView.findViewById(NoteViewHolderUI.btArchiveId)
+    private val btArchive: Button = itemView.findViewById(NoteViewHolderUI.btArchiveId)
     lateinit var note: Note
 
-    fun bindItem(item: Note, position: Int) {
+    fun bindItem(item: Note, position: Int, listener: (Note) -> Unit) {
         note = item
 
         tvTitle.text = item.title
@@ -33,22 +33,15 @@ class NoteViewHolder(override val containerView: View) :
             btArchive.visibility = View.GONE
         } else {
             btArchive.visibility = View.VISIBLE
+            btArchive.setOnClickListener {
+                note.isArchival = true
+                listener(note)
+            }
         }
 
         itemView.setBackgroundColor(
             itemView.context.resources.getColor(getBackgroundColor(position, item.isArchival))
         )
-    }
-
-    fun setItemViewArchivalTheme(view: View, btn: Button, isArchival: Boolean?) {
-        doAsync {
-            this.uiThread {
-                if (isArchival == true) {
-                    btn.visibility = View.GONE
-                    view.setBackgroundColor(view.context.getColor(R.color.colorArchive))
-                }
-            }
-        }
     }
 
     private fun getBackgroundColor(position: Int, isArchival: Boolean?): Int {

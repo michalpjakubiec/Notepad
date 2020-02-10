@@ -8,7 +8,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 
-
+// dodaj retrofit api
 @Database(entities = [Note::class], version = 1)
 abstract class NoteDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
