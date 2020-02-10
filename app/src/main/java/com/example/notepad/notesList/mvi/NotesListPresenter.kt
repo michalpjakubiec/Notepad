@@ -1,10 +1,8 @@
 package com.example.notepad.notesList.mvi
 
 import android.content.Context
-import com.example.notepad.db.NoteDatabase
 import com.example.notepad.notesList.services.NotesListUseCase
-import com.example.notepad.notesList.utils.NotesListNextPageResult
-import com.example.notepad.notesList.utils.NotesListSearchResult
+import com.example.notepad.notesList.utils.NotesListOperationResult
 import com.hannesdorfmann.mosby3.mvi.MviBasePresenter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -15,47 +13,64 @@ class NotesListPresenter(context: Context) :
     MviBasePresenter<NotesListView, NotesListViewState>() {
 
     private val reducer by lazy { NotesListViewReducer() }
-    private val db by lazy { NoteDatabase.get(context) }
-    private val useCase by lazy { NotesListUseCase() }
+    private val useCase by lazy { NotesListUseCase(context) }
 
     override fun bindIntents() {
         val searchIntent = intent { it.searchIntent }
-            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
+            .debounce(2, TimeUnit.SECONDS)
             .switchMap {
-                useCase.searchNotes(it, db)
-                    .delay(2, TimeUnit.SECONDS)
-                    .startWith(NotesListSearchResult.Pending)
+                useCase.loadNextPage(it)
+                    .startWith(NotesListOperationResult.Pending)
             }
             .observeOn(AndroidSchedulers.mainThread())
-            .map { NotesListViewStateChange.NotesListChanged(it) }
+            .map { NotesListViewStateChange.PageChanged(it) }
 
         val nextPageIntent = intent { it.nextPageIntent }
-            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
             .switchMap {
-                useCase.loadNextPage(it, db)
-                    .delay(2, TimeUnit.SECONDS)
-                    .startWith(NotesListNextPageResult.Pending)
+                useCase.loadNextPage(it.first, it.second)
+                    .startWith(NotesListOperationResult.Pending)
             }
             .observeOn(AndroidSchedulers.mainThread())
-            .map { NotesListViewStateChange.NotesPageChanged(it) }
+            .map { NotesListViewStateChange.PageChanged(it) }
 
         val deleteNoteIntent = intent { it.deleteIntent }
-            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
             .switchMap {
-                useCase.deleteNote(it, db)
+                useCase.deleteNote(it)
             }
             .observeOn(AndroidSchedulers.mainThread())
             .map { NotesListViewStateChange.NoteDeleted(it) }
 
+
         val addNoteIntent = intent { it.addIntent }
-            .observeOn(AndroidSchedulers.mainThread())
             .switchMap {
                 useCase.addNote()
             }
-            .map { NotesListViewStateChange.NoteAdd(it) }
+            .map { NotesListViewStateChange.NoteAdded(it) }
+
+        val updateNoteIntent = intent { it.updateIntent }
+            .subscribeOn(Schedulers.io())
+            .switchMap {
+                useCase.updateNote(it)
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { NotesListViewStateChange.NoteUpdated(it) }
+
+        val initialLoadIntent = intent { it.initialLoadIntent }
+            .subscribeOn(Schedulers.io())
+            .switchMap {
+                useCase.loadNextPage(0)
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { NotesListViewStateChange.PageChanged(it) }
 
         val stream = Observable
-            .merge(searchIntent, nextPageIntent, deleteNoteIntent,addNoteIntent)
+            .merge(searchIntent, nextPageIntent, deleteNoteIntent, addNoteIntent)
+            .mergeWith(updateNoteIntent)
+            .mergeWith(initialLoadIntent)
+            .observeOn(AndroidSchedulers.mainThread())
             .scan(NotesListViewState()) { state: NotesListViewState, change: NotesListViewStateChange ->
                 return@scan reducer.reduce(state, change)
             }

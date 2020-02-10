@@ -2,10 +2,7 @@ package com.example.notepad.notesList.mvi
 
 import android.util.Log
 import com.example.notepad.base.ReducerBase
-import com.example.notepad.notesList.utils.NotesListAddNoteResult
-import com.example.notepad.notesList.utils.NotesListDeleteNoteResult
-import com.example.notepad.notesList.utils.NotesListNextPageResult
-import com.example.notepad.notesList.utils.NotesListSearchResult
+import com.example.notepad.notesList.utils.*
 
 class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateChange> {
 
@@ -15,154 +12,191 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
     ): NotesListViewState {
         val currentState = state.copy()
         Log.i("change", change.toString())
-
         when (change) {
-            is NotesListViewStateChange.NotesListChanged -> {
-                when (change.searchResult) {
-                    is NotesListSearchResult.Canceled -> {
-                        currentState.isSearchCanceled = true
-                        currentState.isSearchCompleted = false
-                        currentState.isSearchFailed = false
-                        currentState.isSearchPending = false
-                        currentState.isNextPagePending = false
-                        currentState.isNextPageCompleted = false
-                        currentState.isNextPageFailed = false
-                        currentState.notesList = ArrayList()
-                        currentState.isDeleteCompleted = false
-                        currentState.isAddingCompleted = false
-                        currentState.deletedNoteId = -1
-                        currentState.error = ""
+            is NotesListViewStateChange.FilterChanged -> {
+                when (change.filterResult) {
+                    is NotesListOperationResult.NotStarted -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
                     }
 
-                    is NotesListSearchResult.Completed -> {
-                        currentState.isSearchCanceled = false
-                        currentState.isSearchCompleted = true
-                        currentState.isSearchPending = false
-                        currentState.isSearchFailed = false
-                        currentState.isNextPagePending = false
-                        currentState.isNextPageCompleted = false
-                        currentState.isNextPageFailed = false
-                        currentState.notesList = change.searchResult.notesList
-                        currentState.isDeleteCompleted = false
-                        currentState.isAddingCompleted = false
-                        currentState.deletedNoteId = -1
-                        currentState.error = ""
+                    is NotesListOperationResult.Pending -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.Pending
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
                     }
 
-                    is NotesListSearchResult.Error -> {
-                        currentState.isSearchCanceled = false
-                        currentState.isSearchCompleted = false
-                        currentState.isSearchPending = false
-                        currentState.isSearchFailed = true
-                        currentState.isNextPagePending = false
-                        currentState.isNextPageCompleted = false
-                        currentState.isNextPageFailed = false
-                        currentState.notesList = ArrayList()
-                        currentState.isDeleteCompleted = false
-                        currentState.isAddingCompleted = false
-                        currentState.deletedNoteId = -1
-                        currentState.error = change.searchResult.error
+                    is NotesListOperationResult.Completed -> {
+                        currentState.notesListOperationResult =
+                            NotesListOperationResult.Completed(change.filterResult.result)
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
                     }
-                    is NotesListSearchResult.Pending -> {
-                        currentState.isSearchCanceled = false
-                        currentState.isSearchCompleted = false
-                        currentState.isSearchFailed = false
-                        currentState.isSearchPending = true
-                        currentState.isNextPagePending = false
-                        currentState.isNextPageCompleted = false
-                        currentState.isNextPageFailed = false
-                        currentState.notesList = ArrayList()
-                        currentState.isDeleteCompleted = false
-                        currentState.isAddingCompleted = false
-                        currentState.deletedNoteId = -1
-                        currentState.error = ""
+
+                    is NotesListOperationResult.Failed -> {
+                        currentState.notesListOperationResult =
+                            NotesListOperationResult.Failed(change.filterResult.error)
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = true
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
                     }
                 }
             }
 
-            is NotesListViewStateChange.NotesPageChanged -> {
+            is NotesListViewStateChange.PageChanged -> {
                 when (change.nextPageResult) {
-                    is NotesListNextPageResult.Completed -> {
-                        currentState.isSearchCanceled = false
-                        currentState.isSearchCompleted = false
-                        currentState.isSearchFailed = false
-                        currentState.isSearchPending = false
-                        currentState.isNextPagePending = false
-                        currentState.isNextPageCompleted = true
-                        currentState.isNextPageFailed = false
-                        currentState.notesList = change.nextPageResult.notesList
-                        currentState.isDeleteCompleted = false
-                        currentState.isAddingCompleted = false
-                        currentState.deletedNoteId = -1
-                        currentState.error = ""
+                    is NotesListOperationResult.NotStarted -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
                     }
 
-                    is NotesListNextPageResult.Error -> {
-                        currentState.isSearchCanceled = false
-                        currentState.isSearchCompleted = false
-                        currentState.isSearchFailed = false
-                        currentState.isSearchPending = false
-                        currentState.isNextPagePending = false
-                        currentState.isNextPageCompleted = false
-                        currentState.isNextPageFailed = true
-                        currentState.notesList = ArrayList()
-                        currentState.isDeleteCompleted = false
-                        currentState.isAddingCompleted = false
-                        currentState.deletedNoteId = -1
-                        currentState.error = change.nextPageResult.error
+                    is NotesListOperationResult.Pending -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.Pending
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
                     }
-                    is NotesListNextPageResult.Pending -> {
-                        currentState.isSearchCanceled = false
-                        currentState.isSearchCompleted = false
-                        currentState.isSearchFailed = false
-                        currentState.isSearchPending = false
-                        currentState.isNextPagePending = true
-                        currentState.isNextPageCompleted = false
-                        currentState.isNextPageFailed = false
-                        currentState.notesList = ArrayList()
-                        currentState.isDeleteCompleted = false
-                        currentState.isAddingCompleted = false
-                        currentState.deletedNoteId = -1
-                        currentState.error = ""
+
+                    is NotesListOperationResult.Completed -> {
+                        currentState.notesListOperationResult =
+                            NotesListOperationResult.Completed(change.nextPageResult.result)
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+
+                    is NotesListOperationResult.Failed -> {
+                        currentState.notesListOperationResult =
+                            NotesListOperationResult.Failed(change.nextPageResult.error)
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
                     }
                 }
             }
 
             is NotesListViewStateChange.NoteDeleted -> {
-                if (change.deleteNoteResult is NotesListDeleteNoteResult.Completed) {
-                    currentState.isSearchCanceled = false
-                    currentState.isSearchCompleted = false
-                    currentState.isSearchFailed = false
-                    currentState.isSearchPending = false
-                    currentState.isNextPagePending = false
-                    currentState.isNextPageCompleted = false
-                    currentState.isNextPageFailed = false
-                    currentState.notesList = ArrayList()
-                    currentState.isDeleteCompleted = true
-                    currentState.isAddingCompleted = false
-                    currentState.deletedNoteId = change.deleteNoteResult.id
-                    currentState.error = ""
+                when (change.deleteNoteResult) {
+                    is NoteOperationResult.NotStarted -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+
+                    is NoteOperationResult.Pending -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.Pending
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+
+                    is NoteOperationResult.Completed -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Completed(change.deleteNoteResult.id)
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = true
+                    }
+
+                    is NoteOperationResult.Failed -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Failed(change.deleteNoteResult.error)
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
                 }
             }
 
-            is NotesListViewStateChange.NoteAdd -> {
+            is NotesListViewStateChange.NoteAdded -> {
                 when (change.addNoteResult) {
-                    is NotesListAddNoteResult.Completed -> {
-                        currentState.isSearchCanceled = false
-                        currentState.isSearchCompleted = false
-                        currentState.isSearchFailed = false
-                        currentState.isSearchPending = false
-                        currentState.isNextPagePending = false
-                        currentState.isNextPageCompleted = false
-                        currentState.isNextPageFailed = false
-                        currentState.notesList = ArrayList()
-                        currentState.isDeleteCompleted = false
-                        currentState.isAddingCompleted = true
-                        currentState.deletedNoteId = -1
-                        currentState.error = ""
+                    is NoteOperationResult.NotStarted -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+                    is NoteOperationResult.Pending -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.Pending
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+
+                    is NoteOperationResult.Completed -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Completed(change.addNoteResult.id)
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = true
+                        currentState.deleteChangedNoteFromView = false
+                    }
+
+                    is NoteOperationResult.Failed -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.Failed(change.addNoteResult.error)
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
                     }
                 }
+            }
 
+            is NotesListViewStateChange.NoteUpdated -> {
+                when (change.updateNoteResult) {
+                    is NoteOperationResult.NotStarted -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.NotStarted
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+                    is NoteOperationResult.Pending -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.Pending
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+
+                    is NoteOperationResult.Completed -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Completed(change.updateNoteResult.id)
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+
+                    is NoteOperationResult.Failed -> {
+                        currentState.notesListOperationResult = NotesListOperationResult.NotStarted
+                        currentState.noteOperationResult = NoteOperationResult.Failed(change.updateNoteResult.error)
+                        currentState.showFilterBarError = false
+                        currentState.redirectToNoteFragment = false
+                        currentState.deleteChangedNoteFromView = false
+                    }
+                }
             }
         }
         return currentState
