@@ -1,39 +1,36 @@
 package com.example.notepad.notesList.services
 
+import android.content.Context
+import com.example.notepad.db.NoteDao
 import com.example.notepad.db.NoteDatabase
 import com.example.notepad.db.models.Note
-import com.example.notepad.notesList.utils.NotesListAddNoteResult
-import com.example.notepad.notesList.utils.NotesListDeleteNoteResult
-import com.example.notepad.notesList.utils.NotesListNextPageResult
-import com.example.notepad.notesList.utils.NotesListSearchResult
+import com.example.notepad.notesList.utils.*
 import io.reactivex.Observable
 
-class NotesListUseCase {
+class NotesListUseCase(context: Context) {
 
-    private val comparator by lazy { NotesTitleComparator() }
-    private val loader by lazy { NotesPageLoader() }
+    private val repository by lazy { NoteRepository(context) }
 
-    fun searchNotes(
-        query: String,
-        db: NoteDatabase
-    ): Observable<NotesListSearchResult> {
-        return comparator.compareTitles(query, db)
+    fun loadNextPage(filter: String): Observable<NotesListOperationResult> = loadNextPage(filter, 0)
+    fun loadNextPage(pageNumber: Int): Observable<NotesListOperationResult> =
+        loadNextPage("", pageNumber)
+
+    fun loadNextPage(filter: String, pageNumber: Int): Observable<NotesListOperationResult> {
+        return if (filter.isEmpty())
+            repository.loadNotes(10, pageNumber * 10)
+        else
+            repository.loadNotes(filter, 10, pageNumber * 10)
     }
 
-    fun loadNextPage(
-        pageSearchPair: Pair<Int, String>,
-        db: NoteDatabase
-    ): Observable<NotesListNextPageResult> {
-        return loader.loadPage(pageSearchPair, db)
+    fun deleteNote(note: Note): Observable<NoteOperationResult> {
+        return repository.deleteNote(note)
     }
 
-    fun deleteNote(note: Note, db: NoteDatabase): Observable<NotesListDeleteNoteResult> {
-        val id = note.id
-        db.noteDao().delete(note)
-        return Observable.just(NotesListDeleteNoteResult.Completed(id))
+    fun addNote(): Observable<NoteOperationResult> {
+        return Observable.just(NoteOperationResult.Completed(-1))
     }
 
-    fun addNote(): Observable<NotesListAddNoteResult> {
-        return Observable.just(NotesListAddNoteResult.Completed)
+    fun updateNote(note: Note): Observable<NoteOperationResult> {
+        return repository.updateNote(note)
     }
 }
