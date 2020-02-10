@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notepad.db.NoteDao
 import com.example.notepad.db.NoteDatabase
 import com.example.notepad.db.ioThread
 import com.example.notepad.db.models.Note
@@ -19,81 +18,31 @@ import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
 import com.example.notepad.notesList.mvi.NotesListViewState
 import com.hannesdorfmann.mosby3.mvi.MviFragment
+import com.jakewharton.rxbinding3.recyclerview.scrollEvents
+import com.jakewharton.rxbinding3.view.scrollChangeEvents
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
-import io.reactivex.processors.PublishProcessor
+import io.reactivex.subjects.PublishSubject
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.support.v4.toast
 
 
-class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), NotesListView {
-    private lateinit var ui: NotesListFragmentUI<NotesListFragment>
-    //    private var db: NoteDao by lazy { NoteDatabase.get(context!!).noteDao() }
-    private lateinit var db: NoteDao
-    private val nextPagePublisher: PublishProcessor<Pair<Int, String>> = PublishProcessor.create()
-    private val deletePublisher: PublishProcessor<Note> = PublishProcessor.create()
-    private val addPublisher: PublishProcessor<Unit> = PublishProcessor.create()
-    private lateinit var mainActivity: MainActivity
-
-    override val searchIntent: Observable<String>
-        get() = ui.mEtSearch.textChanges().map { it.toString().trim() }
-    override val nextPageIntent: Observable<Pair<Int, String>>
-        get() = nextPagePublisher.toObservable()
-    override val deleteIntent: Observable<Note>
-        get() = deletePublisher.toObservable()
-    override val addIntent: Observable<Unit>
-        get() = addPublisher.toObservable()
-
+class NotesListFragment : NotesListFragmentBase() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        db = NoteDatabase.get(context!!).noteDao()
-
         setupOnScrollListener()
         initSwipeToDelete()
         initOnAddListener()
-        reloadData()
-    }
-
-    override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
-
-    override fun render(state: NotesListViewState) {
-        if (ui.mEtSearch.isFocused && state.isSearchCompleted)
-            ui.mAdapter.setItems(state.notesList)
-
-        if (ui.mEtSearch.isFocused && state.isSearchFailed)
-            ui.mEtSearch.error = state.error
-
-        if (ui.mEtSearch.isFocused && state.isSearchCanceled) {
-            state.isSearchCanceled = false
-            reloadData()
-        }
-
-        if (state.isSearchPending || state.isNextPagePending)
-            ui.showProgress()
-        else
-            ui.hideProgress()
-
-        if (state.isNextPageCompleted)
-            ui.mAdapter.addItems(state.notesList)
-
-        if (state.isNextPageFailed)
-            toast(state.error)
-
-        if (state.isDeleteCompleted && state.deletedNoteId != -1)
-            ui.mAdapter.deletedItem(state.deletedNoteId)
-
-        if (state.isAddingCompleted) {
-            mainActivity.replaceFragment(NoteFragment())
-        }
     }
 
     private fun initOnAddListener() {
-        ui.fabAdd.onClick { addPublisher.onNext(Unit) }
+        ui.fabAdd.onClick { addSubject.onNext(Unit) }
     }
 
     private fun setupOnScrollListener() {
+        //scrollEvents()
         ui.mRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -103,13 +52,12 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
 
                 if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 2) {
                     ui.showProgress()
-                    nextPagePublisher.onNext(
+                    nextPageSubject.onNext(
                         Pair(
-                            ui.mAdapter.incrementPage(),
-                            ui.mEtSearch.text.toString()
+                            ui.mEtSearch.text.toString(),
+                            ui.mAdapter.incrementPage()
                         )
                     )
-                    return
                 }
             }
         })
@@ -119,13 +67,6 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
         super.onAttach(context)
         if (context is MainActivity)
             this.mainActivity = context
-    }
-
-    private fun reloadData() {
-        ioThread {
-            ui.mAdapter.pageNumber = 0
-            ui.mAdapter.setItems(ArrayList(db.allNotesOrderByDateLimitSkip(10, 0)))
-        }
     }
 
     private fun initSwipeToDelete() {
@@ -142,17 +83,8 @@ class NotesListFragment : MviFragment<NotesListView, NotesListPresenter>(), Note
             ): Boolean = false
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                deletePublisher.onNext((viewHolder as NoteViewHolder).note)
+                deleteSubject.onNext((viewHolder as NoteViewHolder).note)
             }
         }).attachToRecyclerView(ui.mRecycler)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        ui = NotesListFragmentUI()
-        return ui.createView(AnkoContext.create(requireContext(), this))
     }
 }
