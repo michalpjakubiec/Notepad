@@ -19,6 +19,7 @@ import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
 import org.jetbrains.anko.support.v4.toast
 import java.util.*
+import kotlin.reflect.full.createInstance
 
 class NoteFragment : MviFragment<NoteView, NotePresenter>(), NoteView {
     private lateinit var ui: NoteFragmentUI
@@ -58,7 +59,10 @@ class NoteFragment : MviFragment<NoteView, NotePresenter>(), NoteView {
             ui.etTitle.error = null
         if (state.isSavingCompleted) {
             toast(context!!.getString(R.string.notesSavedToast))
-            mainActivity.replaceFragment(NotesListFragment())
+            mainActivity.replaceFragment(
+                NotesListFragment(),
+                (NoteFragment::class.simpleName + NotesListFragment::class.simpleName)
+            )
         }
     }
 

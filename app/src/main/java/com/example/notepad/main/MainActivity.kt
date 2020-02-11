@@ -20,11 +20,16 @@ class MainActivity : AppCompatActivity(), ReplaceFragment {
             id = containerId
         }
 
-        replaceFragment(fragment)
+        replaceFragment(
+            fragment,
+            (MainActivity::class.simpleName + NotesListFragment::class.simpleName)
+        )
     }
 
-    override fun replaceFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().replace(container.id, fragment).addToBackStack(null).commit()
+    override fun replaceFragment(fragment: Fragment, tag: String?) {
+        supportFragmentManager.beginTransaction().replace(container.id, fragment)
+            .addToBackStack(tag)
+            .commit()
     }
 
 }
