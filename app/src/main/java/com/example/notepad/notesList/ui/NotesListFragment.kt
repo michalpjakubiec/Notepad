@@ -17,7 +17,6 @@ class NotesListFragment : NotesListFragmentBase() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initSwipeToDelete()
-        initialLoadSubject.onNext(Unit)
     }
 
     override fun render(state: NotesListViewState) {

@@ -65,10 +65,20 @@ class NotesListPresenter(context: Context) :
             .observeOn(Schedulers.io())
             .map { NotesListViewStateChange.DataSetChanged(it) }
 
+        val refreshIntent = intent { it.refreshIntent }
+            .switchMap {
+                useCase.loadNextPage(0)
+                    .delay(1, TimeUnit.SECONDS)
+                    .startWith(NotesListOperationResult.Pending)
+            }
+            .observeOn(Schedulers.io())
+            .map { NotesListViewStateChange.DataSetChanged(it) }
+
         val stream = Observable
             .merge(searchIntent, nextPageIntent, deleteNoteIntent, addNoteIntent)
             .mergeWith(updateNoteIntent)
             .mergeWith(initialLoadIntent)
+            .mergeWith(refreshIntent)
             .observeOn(AndroidSchedulers.mainThread())
             .scan(NotesListViewState()) { state: NotesListViewState, change: NotesListViewStateChange ->
                 return@scan reducer.reduce(state, change)

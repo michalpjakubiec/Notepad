@@ -11,6 +11,7 @@ interface NotesListView : MvpView {
     val addIntent: Observable<Unit>
     val updateIntent: Observable<Note>
     val initialLoadIntent: Observable<Unit>
+    val refreshIntent: Observable<Unit>
 
     fun render(state: NotesListViewState)
 }
