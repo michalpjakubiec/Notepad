@@ -9,6 +9,7 @@ import com.example.notepad.components.notesList.NoteViewHolderUI
 import com.example.notepad.db.models.Note
 import com.example.notepad.utils.toSimpleString
 import kotlinx.android.extensions.LayoutContainer
+import org.jetbrains.anko.image
 import java.util.*
 
 class NoteViewHolder(override val containerView: View) :
@@ -34,6 +35,11 @@ class NoteViewHolder(override val containerView: View) :
                 listener(note)
             }
         }
+
+        if (item.isFavourite)
+            ui.mFavIcon.image = itemView.context.getDrawable(R.drawable.ic_favorite_white_24dp)
+        else
+            ui.mFavIcon.image = itemView.context.getDrawable(R.drawable.ic_favorite_border_white_24dp)
 
         itemView.setBackgroundColor(
             itemView.context.resources.getColor(getBackgroundColor(position, item.isArchival))
