@@ -49,16 +49,13 @@ class NotesAdapter(
 
     fun setItems(items: List<Note>) {
         this.notes.clear()
+        this.pageNumber = 0
         addItems(items)
     }
 
     fun addItems(items: List<Note>) {
         notes.addAll(items)
-        doAsync {
-            uiThread {
-                notifyDataSetChanged()
-            }
-        }
+        notifyDataSetChanged()
     }
 
 
@@ -67,9 +64,10 @@ class NotesAdapter(
         updateItemSubject.onNext(item)
     }
 
-    fun refreshItemView(item: Note) {
-        val index = this.notes.indexOf(item)
-        this.notifyItemChanged(index)
+    fun updateItem(id: Int) {
+        val item = notes.firstOrNull { it.id == id }
+        item ?: return
+        this.notifyItemChanged(notes.indexOf(item))
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {

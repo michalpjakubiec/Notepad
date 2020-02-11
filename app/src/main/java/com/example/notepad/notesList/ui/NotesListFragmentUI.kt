@@ -1,13 +1,10 @@
 package com.example.notepad.notesList.ui
 
-import android.app.Dialog
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.notepad.R
 import com.example.notepad.notesList.adapter.NotesAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -17,13 +14,15 @@ import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.design.textInputEditText
 import org.jetbrains.anko.design.textInputLayout
 import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
 class NotesListFragmentUI<T> : AnkoComponent<T> {
     lateinit var mEtSearch: TextInputEditText
     lateinit var mRecycler: RecyclerView
     lateinit var mAdapter: NotesAdapter
-    lateinit var progressDialog: Dialog
     lateinit var fabAdd: FloatingActionButton
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    lateinit var mainLayout: LinearLayout
     var isProgressVisible = false
 
     override fun createView(ui: AnkoContext<T>) = with(ui) {
@@ -31,7 +30,7 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
         verticalLayout {
             lparams(matchParent, matchParent)
 
-            verticalLayout {
+            mainLayout = verticalLayout {
                 lparams(matchParent, wrapContent)
 
                 textInputLayout {
@@ -64,51 +63,15 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
                         alignParentEnd()
                     }
 
-                    mAdapter = NotesAdapter(context)
-                    mRecycler = recyclerView {
-                        layoutManager = LinearLayoutManager(context)
-                        adapter = mAdapter
+                    swipeRefreshLayout = swipeRefreshLayout {
+                        mAdapter = NotesAdapter(context)
+                        mRecycler = recyclerView {
+                            layoutManager = LinearLayoutManager(context)
+                            adapter = mAdapter
+                        }
                     }.lparams(matchParent, matchParent)
                 }
             }
-
-            progressDialog = alert {
-                customView {
-                    progressBar {
-                        isIndeterminate = false
-                    }.lparams(matchParent, matchParent)
-                }
-            }.build() as Dialog
         }
     }
-
-    fun showProgress() {
-        isProgressVisible = true
-        progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        progressDialog.show()
-    }
-
-    fun hideProgress() {
-        isProgressVisible = false
-        progressDialog.dismiss()
-    }
-
-//    fun showProgress() {
-//        doAsync {
-//            uiThread {
-//                isProgressVisible = true
-//                progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//                progressDialog.show()
-//            }
-//        }
-//    }
-//
-//    fun hideProgress() {
-//        doAsync {
-//            uiThread {
-//                isProgressVisible = false
-//                progressDialog.dismiss()
-//            }
-//        }
-//    }
 }

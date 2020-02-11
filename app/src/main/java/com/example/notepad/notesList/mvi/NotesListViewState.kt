@@ -10,5 +10,6 @@ data class NotesListViewState(
     var notesListOperationResult: NotesListOperationResult = NotesListOperationResult.NotStarted,
     var showFilterBarError: Boolean = false,
     var redirectToNoteFragment: Boolean = false,
-    var deleteChangedNoteFromView: Boolean = false
+    var deleteChangedNoteFromView: Boolean = false,
+    var replaceItemsInAdapter: Boolean = false
 ) : ViewStateBase

@@ -1,32 +1,16 @@
 package com.example.notepad.notesList.ui
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notepad.db.NoteDatabase
-import com.example.notepad.db.ioThread
-import com.example.notepad.db.models.Note
-import com.example.notepad.main.MainActivity
 import com.example.notepad.note.ui.NoteFragment
 import com.example.notepad.notesList.adapter.NoteViewHolder
-import com.example.notepad.notesList.mvi.NotesListPresenter
-import com.example.notepad.notesList.mvi.NotesListView
 import com.example.notepad.notesList.mvi.NotesListViewState
-import com.hannesdorfmann.mosby3.mvi.MviFragment
-import com.jakewharton.rxbinding3.recyclerview.scrollEvents
-import com.jakewharton.rxbinding3.view.scrollChangeEvents
-import com.jakewharton.rxbinding3.widget.textChanges
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import org.jetbrains.anko.AnkoContext
-import org.jetbrains.anko.sdk27.coroutines.onClick
-import org.jetbrains.anko.support.v4.toast
-
+import com.example.notepad.notesList.utils.NoteOperationResult
+import com.example.notepad.notesList.utils.NotesListOperationResult
+import org.jetbrains.anko.design.snackbar
 
 class NotesListFragment : NotesListFragmentBase() {
 
@@ -34,11 +18,61 @@ class NotesListFragment : NotesListFragmentBase() {
         super.onViewCreated(view, savedInstanceState)
         setupOnScrollListener()
         initSwipeToDelete()
-        initOnAddListener()
+        initialLoadSubject.onNext(Unit)
     }
 
-    private fun initOnAddListener() {
-        ui.fabAdd.onClick { addSubject.onNext(Unit) }
+    override fun render(state: NotesListViewState) {
+        when (state.notesListOperationResult) {
+            is NotesListOperationResult.Pending -> listChangePendingState()
+            is NotesListOperationResult.Failed -> listChangeFailedState(state)
+            is NotesListOperationResult.Completed -> listChangeCompletedState(state)
+        }
+
+        when (state.noteOperationResult) {
+            is NoteOperationResult.Completed -> itemChangeCompletedState(state)
+            is NoteOperationResult.Failed -> itemChangeFailedState(state)
+        }
+    }
+
+    private fun listChangePendingState() {
+        ui.swipeRefreshLayout.isRefreshing = true
+        ui.mEtSearch.error = null
+    }
+
+    private fun listChangeFailedState(state: NotesListViewState) {
+        ui.swipeRefreshLayout.isRefreshing = false
+
+        val error = (state.notesListOperationResult as NotesListOperationResult.Failed).error
+        if (state.showFilterBarError)
+            ui.mEtSearch.error = error
+        else
+            ui.mainLayout.snackbar(error)
+    }
+
+    private fun listChangeCompletedState(state: NotesListViewState) {
+        ui.swipeRefreshLayout.isRefreshing = false
+
+        val items = (state.notesListOperationResult as NotesListOperationResult.Completed).result
+        if (state.replaceItemsInAdapter)
+            ui.mAdapter.setItems(items)
+        else
+            ui.mAdapter.addItems(items)
+    }
+
+    private fun itemChangeFailedState(state: NotesListViewState) {
+        ui.mainLayout.snackbar((state.noteOperationResult as NoteOperationResult.Failed).error)
+
+    }
+
+    private fun itemChangeCompletedState(state: NotesListViewState) {
+        if (state.redirectToNoteFragment)
+            mainActivity.replaceFragment(NoteFragment())
+
+        val itemId = (state.noteOperationResult as NoteOperationResult.Completed).id
+        if (state.deleteChangedNoteFromView)
+            ui.mAdapter.deletedItem(itemId)
+        else
+            ui.mAdapter.updateItem(itemId)
     }
 
     private fun setupOnScrollListener() {
@@ -51,7 +85,6 @@ class NotesListFragment : NotesListFragmentBase() {
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
 
                 if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 2) {
-                    ui.showProgress()
                     nextPageSubject.onNext(
                         Pair(
                             ui.mEtSearch.text.toString(),
@@ -61,12 +94,6 @@ class NotesListFragment : NotesListFragmentBase() {
                 }
             }
         })
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is MainActivity)
-            this.mainActivity = context
     }
 
     private fun initSwipeToDelete() {

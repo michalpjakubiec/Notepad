@@ -17,54 +17,53 @@ class NotesListPresenter(context: Context) :
 
     override fun bindIntents() {
         val searchIntent = intent { it.searchIntent }
-            .subscribeOn(Schedulers.io())
             .debounce(2, TimeUnit.SECONDS)
             .switchMap {
                 useCase.loadNextPage(it)
+                    .delay(1, TimeUnit.SECONDS)
                     .startWith(NotesListOperationResult.Pending)
             }
-            .observeOn(AndroidSchedulers.mainThread())
-            .map { NotesListViewStateChange.PageChanged(it) }
+            .observeOn(Schedulers.io())
+            .map { NotesListViewStateChange.DataSetChanged(it) }
 
         val nextPageIntent = intent { it.nextPageIntent }
-            .subscribeOn(Schedulers.io())
             .switchMap {
                 useCase.loadNextPage(it.first, it.second)
+                    .delay(1, TimeUnit.SECONDS)
                     .startWith(NotesListOperationResult.Pending)
             }
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(Schedulers.io())
             .map { NotesListViewStateChange.PageChanged(it) }
 
         val deleteNoteIntent = intent { it.deleteIntent }
-            .subscribeOn(Schedulers.io())
             .switchMap {
                 useCase.deleteNote(it)
             }
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(Schedulers.io())
             .map { NotesListViewStateChange.NoteDeleted(it) }
-
 
         val addNoteIntent = intent { it.addIntent }
             .switchMap {
                 useCase.addNote()
             }
+            .observeOn(Schedulers.io())
             .map { NotesListViewStateChange.NoteAdded(it) }
 
         val updateNoteIntent = intent { it.updateIntent }
-            .subscribeOn(Schedulers.io())
             .switchMap {
                 useCase.updateNote(it)
             }
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(Schedulers.io())
             .map { NotesListViewStateChange.NoteUpdated(it) }
 
         val initialLoadIntent = intent { it.initialLoadIntent }
-            .subscribeOn(Schedulers.io())
             .switchMap {
                 useCase.loadNextPage(0)
+                    .delay(1, TimeUnit.SECONDS)
+                    .startWith(NotesListOperationResult.Pending)
             }
-            .observeOn(AndroidSchedulers.mainThread())
-            .map { NotesListViewStateChange.PageChanged(it) }
+            .observeOn(Schedulers.io())
+            .map { NotesListViewStateChange.DataSetChanged(it) }
 
         val stream = Observable
             .merge(searchIntent, nextPageIntent, deleteNoteIntent, addNoteIntent)

@@ -5,7 +5,7 @@ import com.example.notepad.notesList.utils.NoteOperationResult
 import com.example.notepad.notesList.utils.NotesListOperationResult
 
 sealed class NotesListViewStateChange : ViewStateChangeBase {
-    data class FilterChanged(val filterResult: NotesListOperationResult) :
+    data class DataSetChanged(val filterResult: NotesListOperationResult) :
         NotesListViewStateChange()
 
     data class PageChanged(val nextPageResult: NotesListOperationResult) :

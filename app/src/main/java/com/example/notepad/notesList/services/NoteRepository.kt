@@ -6,6 +6,9 @@ import com.example.notepad.db.models.Note
 import com.example.notepad.notesList.utils.NoteOperationResult
 import com.example.notepad.notesList.utils.NotesListOperationResult
 import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.lang.Error
 import java.lang.Exception
 
@@ -15,57 +18,59 @@ class NoteRepository(context: Context) {
     fun deleteNote(
         note: Note
     ): Observable<NoteOperationResult> {
-        return try {
-            Observable.fromCallable {
+        return Observable.fromCallable {
+            try {
                 val id = note.id
                 db.delete(note)
                 NoteOperationResult.Completed(id)
+            } catch (ex: Exception) {
+                NoteOperationResult.Failed(ex.toString())
             }
-        } catch (ex: Exception) {
-            Observable.just(NoteOperationResult.Failed(ex.toString()))
-        }
+        }.subscribeOn(Schedulers.io())
     }
 
     fun updateNote(
         note: Note
     ): Observable<NoteOperationResult> {
-        return try {
-            Observable.fromCallable {
+        return Observable.fromCallable {
+            try {
                 db.update(note)
                 NoteOperationResult.Completed(note.id)
+            } catch (ex: Exception) {
+                NoteOperationResult.Failed(ex.toString())
             }
-        } catch (ex: Exception) {
-            Observable.just(NoteOperationResult.Failed(ex.toString()))
-        }
+        }.subscribeOn(Schedulers.io())
     }
 
     fun loadNotes(filter: String, limit: Int, skip: Int): Observable<NotesListOperationResult> {
-        return try {
-            if (filter.isEmpty())
-                return Observable.just(NotesListOperationResult.NotStarted)
+        return Observable.fromCallable {
+            try {
+                if (filter.isNotEmpty() && filter.length < 3)
+                    throw Error("Query must be longer than 2 characters")
 
-            if (filter.length < 3)
-                throw Error("Query must be longer than 2 characters")
 
-            Observable.fromCallable {
-                val items = db.allNotesFilterByTitleOrderByDateLimitSkip(filter, limit, skip)
+                val items: List<Note> = if (filter.isEmpty())
+                    db.allNotesOrderByDateLimitSkip(limit, 0)
+                else
+                    db.allNotesFilterByTitleOrderByDateLimitSkip(filter, limit, skip)
+
                 NotesListOperationResult.Completed(items)
-            }
 
-        } catch (ex: Exception) {
-            Observable.just(NotesListOperationResult.Failed(ex.toString()))
-        }
+            } catch (ex: Exception) {
+                NotesListOperationResult.Failed(ex.toString())
+            }
+        }.subscribeOn(Schedulers.io())
     }
 
     fun loadNotes(limit: Int, skip: Int): Observable<NotesListOperationResult> {
-        return try {
-            Observable.fromCallable {
+        return Observable.fromCallable {
+            try {
                 val items = db.allNotesOrderByDateLimitSkip(limit, skip)
-                NotesListOperationResult.Completed(items)
-            }
+                return@fromCallable NotesListOperationResult.Completed(items)
 
-        } catch (ex: Exception) {
-            Observable.just(NotesListOperationResult.Failed(ex.toString()))
-        }
+            } catch (ex: Exception) {
+                return@fromCallable NotesListOperationResult.Failed(ex.toString())
+            }
+        }.subscribeOn(Schedulers.io())
     }
 }

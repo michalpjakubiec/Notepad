@@ -13,7 +13,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
         val currentState = state.copy()
         Log.i("change", change.toString())
         when (change) {
-            is NotesListViewStateChange.FilterChanged -> {
+            is NotesListViewStateChange.DataSetChanged -> {
                 when (change.filterResult) {
                     is NotesListOperationResult.NotStarted -> {
                         currentState.notesListOperationResult = NotesListOperationResult.NotStarted
@@ -21,6 +21,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NotesListOperationResult.Pending -> {
@@ -29,6 +30,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NotesListOperationResult.Completed -> {
@@ -38,6 +40,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = true
                     }
 
                     is NotesListOperationResult.Failed -> {
@@ -47,6 +50,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = true
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
                 }
             }
@@ -59,6 +63,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NotesListOperationResult.Pending -> {
@@ -67,6 +72,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NotesListOperationResult.Completed -> {
@@ -76,6 +82,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NotesListOperationResult.Failed -> {
@@ -85,6 +92,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
                 }
             }
@@ -97,6 +105,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NoteOperationResult.Pending -> {
@@ -105,6 +114,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NoteOperationResult.Completed -> {
@@ -114,6 +124,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = true
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NoteOperationResult.Failed -> {
@@ -123,6 +134,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
                 }
             }
@@ -135,6 +147,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
                     is NoteOperationResult.Pending -> {
                         currentState.notesListOperationResult = NotesListOperationResult.NotStarted
@@ -142,6 +155,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NoteOperationResult.Completed -> {
@@ -151,6 +165,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = true
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NoteOperationResult.Failed -> {
@@ -159,6 +174,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
                 }
             }
@@ -171,6 +187,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
                     is NoteOperationResult.Pending -> {
                         currentState.notesListOperationResult = NotesListOperationResult.NotStarted
@@ -178,6 +195,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NoteOperationResult.Completed -> {
@@ -187,6 +205,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
 
                     is NoteOperationResult.Failed -> {
@@ -195,6 +214,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false
+                        currentState.replaceItemsInAdapter = false
                     }
                 }
             }
