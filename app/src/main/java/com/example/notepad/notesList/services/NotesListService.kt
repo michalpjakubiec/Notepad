@@ -12,7 +12,7 @@ import io.reactivex.schedulers.Schedulers
 import java.lang.Error
 import java.lang.Exception
 
-class NoteRepository(context: Context) {
+class NotesListService(context: Context) {
     private val db by lazy { NoteDatabase.get(context).noteDao() }
 
     fun deleteNote(
