@@ -1,31 +1,23 @@
 package com.example.notepad.note.services
 
-import com.example.notepad.db.NoteDatabase
+import android.content.Context
 import com.example.notepad.db.models.Note
-import com.example.notepad.note.utils.NoteSaveResult
-import com.example.notepad.note.utils.NoteValidationResult
+import com.example.notepad.note.utils.NoteOperationResult
 import io.reactivex.Observable
-import java.lang.Exception
 
-class NoteUseCase {
+class NoteUseCase(context: Context) {
 
-    private val validator by lazy { NoteValidator() }
+    private val service by lazy { NoteService(context) }
 
-    fun validateNote(title: String): Observable<NoteValidationResult> {
-        return validator.validateNote(title)
+    fun validateNote(title: String): Observable<NoteOperationResult> {
+        return service.validateNote(title)
     }
 
-    fun saveNote(note: Note, db: NoteDatabase): Observable<NoteSaveResult> {
-        return try {
-            if (note.title?.isNotEmpty() != true)
-                return Observable.just(NoteSaveResult.Failed("Title cannot be blank!"))
-            if (note.title?.first()?.isUpperCase() != true)
-                return Observable.just(NoteSaveResult.Failed("Title must start with upper case letter!"))
+    fun changeFavouriteStatus(note: Note): Observable<NoteOperationResult> {
+        return service.changeFavouriteStatus(note)
+    }
 
-            db.noteDao().insert(note)
-            Observable.just(NoteSaveResult.Completed)
-        } catch (ex: Exception) {
-            Observable.just(NoteSaveResult.Failed(ex.toString()))
-        }
+    fun saveNote(note: Note): Observable<NoteOperationResult> {
+        return service.saveNote(note)
     }
 }

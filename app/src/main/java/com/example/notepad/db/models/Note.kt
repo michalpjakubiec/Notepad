@@ -11,5 +11,6 @@ data class Note(
     val created: Long,
     var title: String?,
     var content: String?,
-    var isArchival: Boolean
+    var isArchival: Boolean,
+    var isFavourite: Boolean
 )

@@ -1,8 +1,6 @@
 package com.example.notepad.note.mvi
 
 import com.example.notepad.base.ReducerBase
-import com.example.notepad.note.utils.NoteSaveResult
-import com.example.notepad.note.utils.NoteValidationResult
 
 class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
     override fun reduce(state: NoteViewState, change: NoteViewStateChange): NoteViewState {

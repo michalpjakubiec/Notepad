@@ -16,6 +16,7 @@ class NoteFragmentUI(context: Context) : LinearLayout(context) {
     lateinit var etContent: EditText
     lateinit var toolbar: Toolbar
     lateinit var saveMenuItem: MenuItem
+    lateinit var favouriteMenuItem: MenuItem
 
     init {
         relativeLayout {
@@ -24,6 +25,10 @@ class NoteFragmentUI(context: Context) : LinearLayout(context) {
             appBarLayout {
                 toolbar = toolbar {
                     menu.apply {
+                        favouriteMenuItem = add(R.string.toolBarFavouriteTitle).apply {
+                            icon = context.getDrawable(R.drawable.ic_favorite_border_white_24dp)
+                            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                        }
                         saveMenuItem = add(R.string.toolBarSaveTitle).apply {
                             icon = context.getDrawable(R.drawable.ic_save_white_24dp)
                             setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)

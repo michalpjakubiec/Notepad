@@ -7,4 +7,5 @@
     <string name="contentHint">Content</string>
     <string name="notesSavedToast">Note saved</string>
     <string name="toolBarSaveTitle">Save</string>
+    <string name="toolBarFavouriteTitle">Favourite</string>
 </resources>
