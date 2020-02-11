@@ -34,9 +34,15 @@ dependencies {
     implementation "androidx.sqlite:sqlite-ktx:$sqlite_version"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
-    implementation "com.jakewharton.rxbinding3:rxbinding:$rxbinding"
-    implementation "com.jakewharton.rxbinding3:rxbinding-recyclerview:$rxbinding"
-    implementation "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:$rxbinding"
+    implementation "com.jakewharton.rxbinding3:rxbinding-core:$rxbinding_version"
+    implementation "com.jakewharton.rxbinding3:rxbinding-appcompat:$rxbinding_version"
+    implementation "com.jakewharton.rxbinding3:rxbinding-drawerlayout:$rxbinding_version"
+    implementation "com.jakewharton.rxbinding3:rxbinding-leanback:$rxbinding_version"
+    implementation "com.jakewharton.rxbinding3:rxbinding-recyclerview:$rxbinding_version"
+    implementation "com.jakewharton.rxbinding3:rxbinding-slidingpanelayout:$rxbinding_version"
+    implementation "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:$rxbinding_version"
+    implementation "com.jakewharton.rxbinding3:rxbinding-viewpager:$rxbinding_version"
+    implementation "com.jakewharton.rxbinding3:rxbinding-viewpager2:$rxbinding_version"
     implementation 'com.hannesdorfmann.mosby3:mvi:3.1.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.2.0'

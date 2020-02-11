@@ -1,27 +1,33 @@
-package com.example.notepad.note.ui
+package com.example.notepad.components.notesList
 
+import android.content.Context
 import android.text.InputType
-import android.view.View
+import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toolbar
-import androidx.core.view.marginTop
 import com.example.notepad.R
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.appBarLayout
 
-class NoteFragmentUI<T> : AnkoComponent<T> {
+class NoteFragmentUI(context: Context) : LinearLayout(context) {
     lateinit var etTitle: EditText
     lateinit var etContent: EditText
     lateinit var toolbar: Toolbar
+    lateinit var saveMenuItem: MenuItem
 
-    override fun createView(ui: AnkoContext<T>) = with(ui) {
+    init {
         relativeLayout {
             lparams(matchParent, matchParent)
 
             appBarLayout {
                 toolbar = toolbar {
-                    inflateMenu(R.menu.toolbar)
+                    menu.apply {
+                        saveMenuItem = add(R.string.toolBarSaveTitle).apply {
+                            icon = context.getDrawable(R.drawable.ic_save_white_24dp)
+                        }
+                    }
                 }.lparams(matchParent, wrapContent)
 
             }.lparams(matchParent, wrapContent)
@@ -48,9 +54,5 @@ class NoteFragmentUI<T> : AnkoComponent<T> {
                 width = matchParent
             }
         }
-    }
-
-    companion object {
-        val toolbarId = View.generateViewId()
     }
 }

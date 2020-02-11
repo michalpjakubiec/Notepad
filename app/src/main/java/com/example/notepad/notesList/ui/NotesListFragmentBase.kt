@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.notepad.components.notesList.NotesListFragmentUI
 import com.example.notepad.db.models.Note
 import com.example.notepad.main.MainActivity
 import com.example.notepad.notesList.mvi.NotesListPresenter
@@ -16,14 +17,11 @@ import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
-import org.jetbrains.anko.AnkoContext
-import org.jetbrains.anko.support.v4.onRefresh
 
 abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPresenter>(),
     NotesListView {
-    lateinit var ui: NotesListFragmentUI<NotesListFragmentBase>
+    lateinit var ui: NotesListFragmentUI
     lateinit var mainActivity: MainActivity
     val deleteSubject: PublishSubject<Note> = PublishSubject.create()
 
@@ -70,7 +68,8 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        ui = NotesListFragmentUI()
-        return ui.createView(AnkoContext.create(requireContext(), this))
+        ui =
+            NotesListFragmentUI(context!!)
+        return ui
     }
 }

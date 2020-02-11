@@ -2,19 +2,11 @@ package com.example.notepad.notesList.adapter
 
 import android.content.Context
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notepad.db.NoteDatabase
+import com.example.notepad.components.notesList.NoteViewHolderUI
 import com.example.notepad.db.models.Note
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.jetbrains.anko.AnkoContext
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
 
 
 class NotesAdapter(
@@ -26,14 +18,7 @@ class NotesAdapter(
     val updateItemSubject: PublishSubject<Note> = PublishSubject.create()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
-        return NoteViewHolder(
-            NoteViewHolderUI().createView(
-                AnkoContext.create(
-                    context,
-                    parent
-                )
-            )
-        )
+        return NoteViewHolder(NoteViewHolderUI(context))
     }
 
     fun deletedItem(id: Int) {
