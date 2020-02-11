@@ -1,6 +1,7 @@
 package com.example.notepad.note.mvi
 
 import com.example.notepad.base.ReducerBase
+import com.example.notepad.note.utils.NoteOperationResult
 
 class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
     override fun reduce(state: NoteViewState, change: NoteViewStateChange): NoteViewState {
@@ -8,46 +9,60 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
         when (change) {
             is NoteViewStateChange.SaveChange -> {
                 when (change.saveResult) {
-                    is NoteSaveResult.Completed -> {
-                        currentState.isSavingCompleted = true
-                        currentState.isSavingFailed = false
-                        currentState.isValidationCompleted = false
-                        currentState.isValidationFailed = false
-                        currentState.isValidationCanceled = false
-                        currentState.error = ""
+                    is NoteOperationResult.Completed -> {
+                        currentState.noteOperationResult = NoteOperationResult.Completed
+                        currentState.showValidationError = false
+                        currentState.changeFavouritesIcon = false
+                        currentState.finishActivity = true
                     }
 
-                    is NoteSaveResult.Failed -> {
-                        currentState.isSavingCompleted = false
-                        currentState.isSavingFailed = true
-                        currentState.isValidationCompleted = false
-                        currentState.isValidationFailed = false
-                        currentState.isValidationCanceled = false
-                        currentState.error = change.saveResult.error
+                    is NoteOperationResult.Failed -> {
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Failed(change.saveResult.error)
+                        currentState.showValidationError = false
+                        currentState.changeFavouritesIcon = false
+                        currentState.finishActivity = false
                     }
                 }
             }
             is NoteViewStateChange.ValidationChange -> {
                 when (change.validationResult) {
-                    is NoteValidationResult.Completed -> {
-                        currentState.isSavingCompleted = false
-                        currentState.isSavingFailed = false
-                        currentState.isValidationCompleted = true
-                        currentState.isValidationFailed = false
-                        currentState.isValidationCanceled = false
-                        currentState.error = ""
+                    is NoteOperationResult.Completed -> {
+                        currentState.noteOperationResult = NoteOperationResult.Completed
+                        currentState.showValidationError = false
+                        currentState.changeFavouritesIcon = false
+                        currentState.finishActivity = false
                     }
 
-                    is NoteValidationResult.Failed -> {
-                        currentState.isSavingCompleted = false
-                        currentState.isSavingFailed = false
-                        currentState.isValidationCompleted = false
-                        currentState.isValidationFailed = true
-                        currentState.isValidationCanceled = false
-                        currentState.error = change.validationResult.error
+                    is NoteOperationResult.Failed -> {
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Failed(change.validationResult.error)
+                        currentState.showValidationError = true
+                        currentState.changeFavouritesIcon = false
+                        currentState.finishActivity = false
                     }
                 }
             }
+
+            is NoteViewStateChange.FavouriteChange -> {
+                when (change.favouriteResult) {
+                    is NoteOperationResult.Completed -> {
+                        currentState.noteOperationResult = NoteOperationResult.Completed
+                        currentState.showValidationError = false
+                        currentState.changeFavouritesIcon = true
+                        currentState.finishActivity = false
+                    }
+
+                    is NoteOperationResult.Failed -> {
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Failed(change.favouriteResult.error)
+                        currentState.showValidationError = false
+                        currentState.changeFavouritesIcon = false
+                        currentState.finishActivity = false
+                    }
+                }
+            }
+
         }
 
         return currentState

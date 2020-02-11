@@ -12,6 +12,7 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.design.appBarLayout
 
 class NoteFragmentUI(context: Context) : LinearLayout(context) {
+    lateinit var mainLayout: LinearLayout
     lateinit var etTitle: EditText
     lateinit var etContent: EditText
     lateinit var toolbar: Toolbar
@@ -38,7 +39,7 @@ class NoteFragmentUI(context: Context) : LinearLayout(context) {
 
             }.lparams(matchParent, wrapContent)
 
-            verticalLayout {
+            mainLayout = verticalLayout {
                 etTitle = editText {
                     textSize = 18f
                     hint = context.getString(R.string.titleHint)

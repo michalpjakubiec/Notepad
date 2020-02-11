@@ -23,11 +23,11 @@ abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteVi
     override val saveIntent: Observable<Note>
         get() = ui.saveMenuItem.clicks().map {
             note.title = ui.etTitle.text.toString()
-            note.title = ui.etContent.text.toString()
+            note.content = ui.etContent.text.toString()
             note
         }
     override val favouriteIntent: Observable<Note>
-        get() = ui.saveMenuItem.clicks().map { note }
+        get() = ui.favouriteMenuItem.clicks().map { note }
 
     override val validationIntent: Observable<String>
         get() = ui.etTitle.textChanges().map { it.toString().trim() }
