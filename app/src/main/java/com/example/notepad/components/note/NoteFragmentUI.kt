@@ -26,6 +26,7 @@ class NoteFragmentUI(context: Context) : LinearLayout(context) {
                     menu.apply {
                         saveMenuItem = add(R.string.toolBarSaveTitle).apply {
                             icon = context.getDrawable(R.drawable.ic_save_white_24dp)
+                            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                         }
                     }
                 }.lparams(matchParent, wrapContent)
