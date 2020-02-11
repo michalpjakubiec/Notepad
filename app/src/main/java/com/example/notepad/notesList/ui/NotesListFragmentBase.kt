@@ -39,9 +39,12 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
                 val totalItemCount = manager.itemCount
                 val lastVisibleItem = manager.findLastVisibleItemPosition()
 
-                totalItemCount <= lastVisibleItem + 2
+                (!ui.isNextPageLoading) && totalItemCount <= lastVisibleItem + 2
             }
-            .map { Pair(ui.mEtSearch.text.toString(), ui.mAdapter.pageNumber) }
+            .map {
+                ui.isNextPageLoading = true
+                Pair(ui.mEtSearch.text.toString(), ui.mAdapter.pageNumber)
+            }
 
     override val deleteIntent: Observable<Note>
         get() = deleteSubject

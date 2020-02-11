@@ -23,7 +23,7 @@ class NotesListFragmentUI<T> : AnkoComponent<T> {
     lateinit var fabAdd: FloatingActionButton
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var mainLayout: LinearLayout
-    var isProgressVisible = false
+    var isNextPageLoading = false
 
     override fun createView(ui: AnkoContext<T>) = with(ui) {
 

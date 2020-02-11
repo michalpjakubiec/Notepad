@@ -49,6 +49,7 @@ class NotesListFragment : NotesListFragmentBase() {
 
     private fun listChangeCompletedState(state: NotesListViewState) {
         ui.swipeRefreshLayout.isRefreshing = false
+        ui.isNextPageLoading = false
 
         val items = (state.notesListOperationResult as NotesListOperationResult.Completed).result
         if (state.replaceItemsInAdapter)
