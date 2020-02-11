@@ -21,7 +21,7 @@ abstract class NoteDatabase : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     NoteDatabase::class.java, "NoteDatabase"
-                )
+                ).fallbackToDestructiveMigration()
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             fillInDb(context.applicationContext)
@@ -51,7 +51,8 @@ abstract class NoteDatabase : RoomDatabase() {
                             created = it.first.time,
                             title = it.second,
                             content = it.third,
-                            isArchival = false
+                            isArchival = false,
+                            isFavourite = false
                         )
                     })
             }
