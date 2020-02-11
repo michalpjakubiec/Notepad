@@ -46,7 +46,7 @@ class NoteRepository(context: Context) {
         return Observable.fromCallable {
             try {
                 if (filter.isNotEmpty() && filter.length < 3)
-                    throw Error("Query must be longer than 2 characters")
+                    return@fromCallable NotesListOperationResult.Failed("Query must be longer than 2 characters")
 
 
                 val items: List<Note> = if (filter.isEmpty())

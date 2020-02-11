@@ -42,11 +42,6 @@ class NotesAdapter(
         this.notifyItemRemoved(notes.indexOf(item))
     }
 
-    fun incrementPage(): Int {
-        pageNumber++
-        return pageNumber
-    }
-
     fun setItems(items: List<Note>) {
         this.notes.clear()
         this.pageNumber = 0
@@ -54,7 +49,11 @@ class NotesAdapter(
     }
 
     fun addItems(items: List<Note>) {
+        if (items.isEmpty())
+            return
+
         notes.addAll(items)
+        pageNumber++
         notifyDataSetChanged()
     }
 

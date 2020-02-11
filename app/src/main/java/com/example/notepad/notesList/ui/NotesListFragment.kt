@@ -16,7 +16,6 @@ class NotesListFragment : NotesListFragmentBase() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupOnScrollListener()
         initSwipeToDelete()
         initialLoadSubject.onNext(Unit)
     }
@@ -73,27 +72,6 @@ class NotesListFragment : NotesListFragmentBase() {
             ui.mAdapter.deletedItem(itemId)
         else
             ui.mAdapter.updateItem(itemId)
-    }
-
-    private fun setupOnScrollListener() {
-        //scrollEvents()
-        ui.mRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = ui.mRecycler.layoutManager as LinearLayoutManager
-                val totalItemCount = layoutManager.itemCount
-                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-
-                if (!ui.isProgressVisible && totalItemCount <= lastVisibleItem + 2) {
-                    nextPageSubject.onNext(
-                        Pair(
-                            ui.mEtSearch.text.toString(),
-                            ui.mAdapter.incrementPage()
-                        )
-                    )
-                }
-            }
-        })
     }
 
     private fun initSwipeToDelete() {
