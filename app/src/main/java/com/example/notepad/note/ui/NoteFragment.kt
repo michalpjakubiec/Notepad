@@ -5,9 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.Toolbar
 import com.example.notepad.R
-import com.example.notepad.components.notesList.NoteFragmentUI
+import com.example.notepad.components.note.NoteFragmentUI
 import com.example.notepad.db.models.Note
 import com.example.notepad.main.MainActivity
 import com.example.notepad.note.mvi.NotePresenter
@@ -18,9 +17,6 @@ import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
-import io.reactivex.processors.PublishProcessor
-import org.jetbrains.anko.AnkoContext
-import org.jetbrains.anko.sdk27.coroutines.onMenuItemClick
 import org.jetbrains.anko.support.v4.toast
 import java.util.*
 

@@ -1,4 +1,4 @@
-package com.example.notepad.components.notesList
+package com.example.notepad.components.note
 
 import android.content.Context
 import android.text.InputType
