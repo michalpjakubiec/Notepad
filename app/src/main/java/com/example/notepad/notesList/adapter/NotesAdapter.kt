@@ -29,29 +29,29 @@ class NotesAdapter(
     }
 
     fun setItems(items: List<Note>) {
+        val diff = NoteDiffCallback(items, notes)
+        val result = DiffUtil.calculateDiff(diff)
+
         this.notes.clear()
-        this.pageNumber = 0
-        addItems(items)
+        this.notes.addAll(items)
+        this.pageNumber = 1
+
+        result.dispatchUpdatesTo(this)
     }
 
     fun addItems(items: List<Note>) {
-        if (items.isEmpty())
-            return
-
-        val oldList = notes
+        val oldList = ArrayList(notes)
         notes.addAll(items)
-        val newList = notes
 
-        val diff = NoteDiffCallback(newList, oldList)
+        val diff = NoteDiffCallback(notes, oldList)
         val result = DiffUtil.calculateDiff(diff)
 
         pageNumber++
-        //result.dispatchUpdatesTo(this)
-        notifyDataSetChanged()
+        result.dispatchUpdatesTo(this)
     }
 
 
-    private fun setItemArchive(item: Note) {
+    private fun noteUpdated(item: Note) {
         updateItemSubject.onNext(item)
     }
 
@@ -63,7 +63,7 @@ class NotesAdapter(
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val note = notes[position]
-        holder.bindItem(note, position, this::setItemArchive)
+        holder.bindItem(note, position, this::noteUpdated)
     }
 
     override fun getItemCount(): Int = notes.size

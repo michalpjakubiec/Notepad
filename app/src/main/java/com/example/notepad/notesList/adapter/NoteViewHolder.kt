@@ -16,7 +16,7 @@ class NoteViewHolder(override val containerView: View) :
     RecyclerView.ViewHolder(containerView),
     LayoutContainer {
 
-    val ui: NoteViewHolderUI = containerView as NoteViewHolderUI
+    private val ui: NoteViewHolderUI = containerView as NoteViewHolderUI
     lateinit var note: Note
 
     fun bindItem(item: Note, position: Int, updateListener: (Note) -> Unit) {

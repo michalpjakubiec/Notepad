@@ -66,7 +66,6 @@ class NotesListFragmentUI(context: Context) : LinearLayout(context) {
                     mRecycler = recyclerView {
                         layoutManager = LinearLayoutManager(context)
                         adapter = mAdapter
-                        itemAnimator = DefaultItemAnimator()
                     }
                 }.lparams(matchParent, matchParent)
             }
