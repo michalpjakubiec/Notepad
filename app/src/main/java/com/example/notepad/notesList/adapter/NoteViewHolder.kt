@@ -19,7 +19,7 @@ class NoteViewHolder(override val containerView: View) :
     val ui: NoteViewHolderUI = containerView as NoteViewHolderUI
     lateinit var note: Note
 
-    fun bindItem(item: Note, position: Int, listener: (Note) -> Unit) {
+    fun bindItem(item: Note, position: Int, updateListener: (Note) -> Unit) {
         note = item
 
         ui.mTvTitle.text = item.title
@@ -32,14 +32,19 @@ class NoteViewHolder(override val containerView: View) :
             ui.mBtArchive.visibility = View.VISIBLE
             ui.mBtArchive.setOnClickListener {
                 note.isArchival = true
-                listener(note)
+                updateListener(note)
             }
         }
 
+        ui.mIbFav.setOnClickListener {
+            note.isFavourite = !note.isFavourite
+            updateListener(note)
+        }
+
         if (item.isFavourite)
-            ui.mFavIcon.image = itemView.context.getDrawable(R.drawable.ic_favorite_white_24dp)
+            ui.mIbFav.image = itemView.context.getDrawable(R.drawable.ic_favorite_white_24dp)
         else
-            ui.mFavIcon.image = itemView.context.getDrawable(R.drawable.ic_favorite_border_white_24dp)
+            ui.mIbFav.image = itemView.context.getDrawable(R.drawable.ic_favorite_border_white_24dp)
 
         itemView.setBackgroundColor(
             itemView.context.resources.getColor(getBackgroundColor(position, item.isArchival))

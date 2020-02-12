@@ -1,12 +1,10 @@
 package com.example.notepad.components.notesList
 
 import android.content.Context
+import android.graphics.Color
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import com.example.notepad.R
 import org.jetbrains.anko.*
 
@@ -16,7 +14,7 @@ class NoteViewHolderUI(context: Context) : LinearLayout(context) {
     lateinit var mTvDate: TextView
     lateinit var mTvContent: TextView
     lateinit var mBtArchive: Button
-    lateinit var mFavIcon: ImageView
+    lateinit var mIbFav: ImageButton
 
     init {
         verticalLayout {
@@ -32,9 +30,10 @@ class NoteViewHolderUI(context: Context) : LinearLayout(context) {
                     alignParentTop()
                 }
 
-                mFavIcon = imageView{
+                mIbFav = imageButton {
                     id = View.generateViewId()
-                }.lparams{
+                    backgroundColor = Color.TRANSPARENT
+                }.lparams {
                     endOf(mTvTitle)
                     alignParentTop()
                 }
