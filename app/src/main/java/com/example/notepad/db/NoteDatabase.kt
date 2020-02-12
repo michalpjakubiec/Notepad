@@ -21,19 +21,18 @@ abstract class NoteDatabase : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     NoteDatabase::class.java, "NoteDatabase"
-                ).fallbackToDestructiveMigration()
-                    .addCallback(object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            fillInDb(context.applicationContext)
-                        }
-                    }).build()
+                ).addCallback(object : RoomDatabase.Callback() {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        fillInDb(context.applicationContext)
+                    }
+                }).build()
             }
             return instance!!
         }
 
         private fun fillInDb(context: Context) {
             ioThread {
-                val charPool: List<Char> = ('a'..'z') + ('A'..'Z')
+                val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + (' ') + (',') + ('-')
                 val notes = ArrayList<Triple<Date, String, String>>()
 
                 for (i in 1..500) {
@@ -47,7 +46,7 @@ abstract class NoteDatabase : RoomDatabase() {
                 get(context).noteDao().insert(
                     notes.map {
                         Note(
-                            id = 0,
+                            id = UUID.randomUUID().toString(),
                             created = it.first.time,
                             title = it.second,
                             content = it.third,

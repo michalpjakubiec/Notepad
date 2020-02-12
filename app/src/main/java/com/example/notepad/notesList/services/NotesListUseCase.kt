@@ -25,7 +25,7 @@ class NotesListUseCase(context: Context) {
     }
 
     fun addNote(): Observable<NoteOperationResult> {
-        return Observable.just(NoteOperationResult.Completed(-1))
+        return Observable.just(NoteOperationResult.Completed(""))
     }
 
     fun updateNote(note: Note): Observable<NoteOperationResult> {

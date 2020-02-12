@@ -13,7 +13,7 @@ import java.util.*
 class NoteFragment : NoteFragmentBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        note = Note(0, Date().time, "", "", isArchival = false, isFavourite = false)
+        note = Note(UUID.randomUUID().toString(), Date().time, "", "", isArchival = false, isFavourite = false)
     }
 
     override fun render(state: NoteViewState) {

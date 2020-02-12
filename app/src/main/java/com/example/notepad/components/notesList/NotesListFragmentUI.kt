@@ -3,6 +3,7 @@ package com.example.notepad.components.notesList
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -65,6 +66,7 @@ class NotesListFragmentUI(context: Context) : LinearLayout(context) {
                     mRecycler = recyclerView {
                         layoutManager = LinearLayoutManager(context)
                         adapter = mAdapter
+                        itemAnimator = DefaultItemAnimator()
                     }
                 }.lparams(matchParent, matchParent)
             }

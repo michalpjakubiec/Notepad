@@ -3,7 +3,6 @@ package com.example.notepad.notesList.ui
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.note.ui.NoteFragment
 import com.example.notepad.notesList.adapter.NoteViewHolder
