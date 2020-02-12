@@ -2,6 +2,7 @@ package com.example.notepad.notesList.adapter
 
 import android.content.Context
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.components.notesList.NoteViewHolderUI
 import com.example.notepad.db.models.Note
@@ -21,7 +22,7 @@ class NotesAdapter(
         return NoteViewHolder(NoteViewHolderUI(context))
     }
 
-    fun deletedItem(id: Int) {
+    fun deletedItem(id: String) {
         val item = notes.firstOrNull { it.id == id }
         item ?: return
         this.notifyItemRemoved(notes.indexOf(item))
@@ -37,18 +38,24 @@ class NotesAdapter(
         if (items.isEmpty())
             return
 
+        val oldList = notes
         notes.addAll(items)
+        val newList = notes
+
+        val diff = NoteDiffCallback(newList, oldList)
+        val result = DiffUtil.calculateDiff(diff)
+
         pageNumber++
+        //result.dispatchUpdatesTo(this)
         notifyDataSetChanged()
     }
 
 
-    //DiffUtil && AsyncDiffUtil
     private fun setItemArchive(item: Note) {
         updateItemSubject.onNext(item)
     }
 
-    fun updateItem(id: Int) {
+    fun updateItem(id: String) {
         val item = notes.firstOrNull { it.id == id }
         item ?: return
         this.notifyItemChanged(notes.indexOf(item))
