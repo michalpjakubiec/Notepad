@@ -24,11 +24,11 @@ class NotesListFragmentUI(context: Context) : LinearLayout(context) {
     lateinit var mAdapter: NotesAdapter
     lateinit var fabAdd: FloatingActionButton
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    lateinit var mainLayout: LinearLayout
+    var mainLayout: LinearLayout
     var isNextPageLoading = false
 
     init {
-        verticalLayout {
+        mainLayout = verticalLayout {
             lparams(matchParent, matchParent)
 
             textInputLayout {

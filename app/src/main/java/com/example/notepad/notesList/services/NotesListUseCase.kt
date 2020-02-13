@@ -21,11 +21,11 @@ class NotesListUseCase(context: Context) {
     }
 
     fun deleteNote(note: Note): Observable<NoteOperationResult> {
-        return service.deleteNote(note)
+        return service.deleteNote(note.id, note)
     }
 
     fun addNote(): Observable<NoteOperationResult> {
-        return Observable.just(NoteOperationResult.Completed(""))
+        return Observable.just(NoteOperationResult.Completed(-1))
     }
 
     fun updateNote(note: Note): Observable<NoteOperationResult> {

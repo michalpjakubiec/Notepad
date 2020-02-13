@@ -22,7 +22,7 @@ class NotesAdapter(
         return NoteViewHolder(NoteViewHolderUI(context))
     }
 
-    fun deletedItem(id: String) {
+    fun deletedItem(id: Int) {
         val item = notes.firstOrNull { it.id == id }
         item ?: return
         this.notifyItemRemoved(notes.indexOf(item))
@@ -40,6 +40,8 @@ class NotesAdapter(
     }
 
     fun addItems(items: List<Note>) {
+        if (items.isEmpty()) return
+
         val oldList = ArrayList(notes)
         notes.addAll(items)
 
@@ -55,7 +57,7 @@ class NotesAdapter(
         updateItemSubject.onNext(item)
     }
 
-    fun updateItem(id: String) {
+    fun updateItem(id: Int) {
         val item = notes.firstOrNull { it.id == id }
         item ?: return
         this.notifyItemChanged(notes.indexOf(item))
