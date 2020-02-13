@@ -3,7 +3,6 @@ package com.example.notepad.utils
 import com.example.notepad.db.models.Note
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 fun List<Note>?.filterByTitle(query: String): List<Note> {
     this ?: return listOf()

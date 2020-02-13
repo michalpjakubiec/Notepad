@@ -4,7 +4,6 @@ import com.example.notepad.db.models.Note
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import io.reactivex.Observable
-import io.reactivex.Single
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
