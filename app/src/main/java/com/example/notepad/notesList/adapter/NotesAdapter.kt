@@ -2,18 +2,12 @@ package com.example.notepad.notesList.adapter
 
 import android.content.Context
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notepad.db.NoteDatabase
+import com.example.notepad.components.notesList.NoteViewHolderUI
 import com.example.notepad.db.models.Note
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import org.jetbrains.anko.AnkoContext
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
 
 
 class NotesAdapter(
@@ -22,17 +16,10 @@ class NotesAdapter(
 
     var notes: ArrayList<Note> = ArrayList()
     var pageNumber: Int = 0
-    private var compositeDisposable = CompositeDisposable()
+    val updateItemSubject: PublishSubject<Note> = PublishSubject.create()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
-        return NoteViewHolder(
-            NoteViewHolderUI().createView(
-                AnkoContext.create(
-                    context,
-                    parent
-                )
-            )
-        )
+        return NoteViewHolder(NoteViewHolderUI(context))
     }
 
     fun deletedItem(id: Int) {
@@ -41,49 +28,44 @@ class NotesAdapter(
         this.notifyItemRemoved(notes.indexOf(item))
     }
 
-    fun incrementPage(): Int {
-        pageNumber++
-        return pageNumber
-    }
-
     fun setItems(items: List<Note>) {
+        val diff = NoteDiffCallback(items, notes)
+        val result = DiffUtil.calculateDiff(diff)
+
         this.notes.clear()
-        addItems(items)
+        this.notes.addAll(items)
+        this.pageNumber = 1
+
+        result.dispatchUpdatesTo(this)
     }
 
     fun addItems(items: List<Note>) {
+        if (items.isEmpty()) return
+
+        val oldList = ArrayList(notes)
         notes.addAll(items)
-        doAsync {
-            uiThread {
-                notifyDataSetChanged()
-            }
-        }
+
+        val diff = NoteDiffCallback(notes, oldList)
+        val result = DiffUtil.calculateDiff(diff)
+
+        pageNumber++
+        result.dispatchUpdatesTo(this)
+    }
+
+
+    private fun noteUpdated(item: Note) {
+        updateItemSubject.onNext(item)
+    }
+
+    fun updateItem(id: Int) {
+        val item = notes.firstOrNull { it.id == id }
+        item ?: return
+        this.notifyItemChanged(notes.indexOf(item))
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val note = notes[position]
-        holder.bindItem(note, position)
-
-        compositeDisposable.add(Observable.create<Boolean> { emitter ->
-            holder.btArchive.setOnClickListener {
-                emitter.onNext((it as Button).isVisible)
-            }
-            emitter.setCancellable {
-                holder.btArchive.setOnClickListener(null)
-            }
-
-        }.observeOn(Schedulers.io())
-            .map {
-                note.isArchival = true
-                val database = NoteDatabase.get(holder.itemView.context).noteDao()
-                database.update(note)
-
-                note.isArchival
-            }.subscribeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                holder.setItemViewArchivalTheme(holder.itemView, holder.btArchive, it)
-            }
-        )
+        holder.bindItem(note, position, this::noteUpdated)
     }
 
     override fun getItemCount(): Int = notes.size

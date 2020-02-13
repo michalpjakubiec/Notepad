@@ -8,7 +8,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 
-
+// dodaj retrofit api
 @Database(entities = [Note::class], version = 1)
 abstract class NoteDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
@@ -21,19 +21,19 @@ abstract class NoteDatabase : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     NoteDatabase::class.java, "NoteDatabase"
-                )
-                    .addCallback(object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            fillInDb(context.applicationContext)
-                        }
-                    }).build()
+                ).build()
+//                ).addCallback(object : RoomDatabase.Callback() {
+//                    override fun onCreate(db: SupportSQLiteDatabase) {
+//                        fillInDb(context.applicationContext)
+//                    }
+//                }).build()
             }
             return instance!!
         }
 
         private fun fillInDb(context: Context) {
             ioThread {
-                val charPool: List<Char> = ('a'..'z') + ('A'..'Z')
+                val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + (' ') + (',') + ('-')
                 val notes = ArrayList<Triple<Date, String, String>>()
 
                 for (i in 1..500) {
@@ -51,7 +51,8 @@ abstract class NoteDatabase : RoomDatabase() {
                             created = it.first.time,
                             title = it.second,
                             content = it.third,
-                            isArchival = false
+                            isArchival = false,
+                            isFavourite = false
                         )
                     })
             }

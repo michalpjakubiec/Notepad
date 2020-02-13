@@ -5,6 +5,8 @@ buildscript {
     ext.anko_version = '0.10.8'
     ext.sqlite_version = '2.1.0'
     ext.room_version = '2.2.3'
+    ext.rxbinding_version = '3.1.0'
+    ext.retrofit_version = '2.4.0'
     repositories {
         google()
         jcenter()
