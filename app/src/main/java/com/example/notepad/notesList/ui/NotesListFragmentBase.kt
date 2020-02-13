@@ -26,7 +26,7 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
     val deleteSubject: PublishSubject<Note> = PublishSubject.create()
 
     override val searchIntent: Observable<String>
-        get() = ui.mEtSearch.textChanges().filter { ui.mEtSearch.isFocused }
+        get() = ui.mEtSearch.textChanges().filter { ui.mEtSearch.isFocused && it.isNotEmpty()}
             .map { it.toString().trim() }
     override val nextPageIntent: Observable<Pair<String, Int>>
         get() = ui.mRecycler.scrollEvents()

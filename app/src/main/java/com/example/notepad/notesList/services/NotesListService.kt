@@ -63,7 +63,7 @@ class NotesListService(context: Context) {
             } catch (ex: Exception) {
                 NotesListOperationResult.Failed(ex.toString())
             }
-        }.onErrorResumeNext(api.getNotes(limit, skip, "").map { json ->
+        }.onErrorResumeNext(api.getNotes(limit, skip, filter).map { json ->
             val items: List<Note> = Gson().fromJson(json, listType)
             db.insert(items)
             NotesListOperationResult.Completed(items)
