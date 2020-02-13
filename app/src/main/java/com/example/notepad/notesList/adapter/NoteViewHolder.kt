@@ -1,8 +1,6 @@
 package com.example.notepad.notesList.adapter
 
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.R
 import com.example.notepad.components.notesList.NoteViewHolderUI
@@ -24,7 +22,9 @@ class NoteViewHolder(override val containerView: View) :
 
         ui.mTvTitle.text = item.title
         ui.mTvDate.text = Date(item.created).toSimpleString()
-        ui.mTvContent.text = item.content?.take(50)
+        val shortContent =
+            if (item.content?.length != null && item.content!!.length > 15) item.content?.take(15) + "..." else item.content
+        ui.mTvContent.text = shortContent
 
         if (item.isArchival) {
             ui.mBtArchive.visibility = View.INVISIBLE
@@ -46,22 +46,21 @@ class NoteViewHolder(override val containerView: View) :
         else
             ui.mIbFav.image = itemView.context.getDrawable(R.drawable.ic_favorite_border_white_24dp)
 
-        itemView.setBackgroundColor(
-            itemView.context.resources.getColor(getBackgroundColor(position, item.isArchival))
-        )
+        itemView.background =
+            itemView.context.getDrawable(getBackgroundColor(position, item.isArchival))
     }
 
     private fun getBackgroundColor(position: Int, isArchival: Boolean?): Int {
         if (isArchival == true)
-            return R.color.colorArchive
+            return R.drawable.note_view_holder_background_archival
 
         return getPositionColor(position)
     }
 
     private fun getPositionColor(position: Int): Int {
         return when (position % 2) {
-            0 -> R.color.colorEven
-            else -> R.color.colorUnEven
+            0 -> R.drawable.note_view_holder_background_even
+            else -> R.drawable.note_view_holder_background_uneven
         }
     }
 }
