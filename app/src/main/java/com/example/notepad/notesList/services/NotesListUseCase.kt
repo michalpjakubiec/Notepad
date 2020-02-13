@@ -10,14 +10,14 @@ class NotesListUseCase(context: Context) {
     private val service by lazy { NotesListService(context) }
 
     fun loadNextPage(filter: String): Observable<NotesListOperationResult> = loadNextPage(filter, 0)
-    fun loadNextPage(pageNumber: Int): Observable<NotesListOperationResult> =
-        loadNextPage("", pageNumber)
+    fun loadNextPage(skip: Int): Observable<NotesListOperationResult> =
+        loadNextPage("", skip)
 
-    fun loadNextPage(filter: String, pageNumber: Int): Observable<NotesListOperationResult> {
+    fun loadNextPage(filter: String, skip: Int): Observable<NotesListOperationResult> {
         return if (filter.isEmpty())
-            service.loadNotes(10, pageNumber * 10)
+            service.loadNotes(10, skip)
         else
-            service.loadNotes(filter, 10, pageNumber * 10)
+            service.loadNotes(filter, 10, skip)
     }
 
     fun deleteNote(note: Note): Observable<NoteOperationResult> {

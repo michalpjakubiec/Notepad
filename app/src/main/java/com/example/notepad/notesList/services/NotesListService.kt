@@ -55,8 +55,8 @@ class NotesListService(context: Context) {
                 val items: List<Note> =
                     db.allNotesFilterByTitleOrderByDateLimitSkip(filter, limit, skip)
 
-                if (items.isEmpty())
-                    throw Error("List is Empty")
+                if (items.size < limit)
+                    throw Error("Page is not full")
 
                 NotesListOperationResult.Completed(items)
 
@@ -74,8 +74,8 @@ class NotesListService(context: Context) {
         return Observable.fromCallable {
             try {
                 val items = db.allNotesOrderByDateLimitSkip(limit, skip)
-                if (items.isEmpty())
-                    throw Error("List is Empty")
+                if (items.size < limit)
+                    throw Error("Page is not full")
 
                 return@fromCallable NotesListOperationResult.Completed(items)
 

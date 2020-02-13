@@ -26,7 +26,7 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
     val deleteSubject: PublishSubject<Note> = PublishSubject.create()
 
     override val searchIntent: Observable<String>
-        get() = ui.mEtSearch.textChanges().filter { ui.mEtSearch.isFocused && it.isNotEmpty()}
+        get() = ui.mEtSearch.textChanges().filter { ui.mEtSearch.isFocused && it.isNotEmpty() }
             .map { it.toString().trim() }
     override val nextPageIntent: Observable<Pair<String, Int>>
         get() = ui.mRecycler.scrollEvents()
@@ -41,7 +41,10 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
             }
             .map {
                 ui.isNextPageLoading = true
-                Pair(ui.mEtSearch.text.toString(), ui.mAdapter.pageNumber)
+                val skipItems =
+                    if (ui.mAdapter.notes.size < ui.mAdapter.pageNumber * 10) ui.mAdapter.notes.size else ui.mAdapter.pageNumber * 10
+
+                Pair(ui.mEtSearch.text.toString(), skipItems)
             }
 
     override val deleteIntent: Observable<Note>
@@ -53,7 +56,9 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
     override val initialLoadIntent: Observable<Unit>
         get() = Observable.just(Unit)
     override val refreshIntent: Observable<Unit>
-        get() = ui.swipeRefreshLayout.refreshes()
+        get() = ui.swipeRefreshLayout.refreshes().map {
+            ui.mEtSearch.setText("")
+        }
 
     override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
 
