@@ -64,7 +64,6 @@ class NotesListFragment : NotesListFragmentBase() {
 
     private fun itemChangeCompletedState(state: NotesListViewState) {
         val itemId = (state.noteOperationResult as NoteOperationResult.Completed).id
-
         if (state.redirectToNoteFragment) {
             val args = Bundle()
             args.putInt("ID", itemId)
