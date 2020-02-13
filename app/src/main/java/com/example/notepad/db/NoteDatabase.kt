@@ -21,11 +21,12 @@ abstract class NoteDatabase : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     NoteDatabase::class.java, "NoteDatabase"
-                ).addCallback(object : RoomDatabase.Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        fillInDb(context.applicationContext)
-                    }
-                }).build()
+                ).build()
+//                ).addCallback(object : RoomDatabase.Callback() {
+//                    override fun onCreate(db: SupportSQLiteDatabase) {
+//                        fillInDb(context.applicationContext)
+//                    }
+//                }).build()
             }
             return instance!!
         }
@@ -46,7 +47,7 @@ abstract class NoteDatabase : RoomDatabase() {
                 get(context).noteDao().insert(
                     notes.map {
                         Note(
-                            id = UUID.randomUUID().toString(),
+                            id = 0,
                             created = it.first.time,
                             title = it.second,
                             content = it.third,

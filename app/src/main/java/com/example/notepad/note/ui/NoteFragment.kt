@@ -13,7 +13,7 @@ import java.util.*
 class NoteFragment : NoteFragmentBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        note = Note(UUID.randomUUID().toString(), Date().time, "", "", isArchival = false, isFavourite = false)
+        note = Note(0, Date().time, "", "", isArchival = false, isFavourite = false)
     }
 
     override fun render(state: NoteViewState) {
@@ -45,7 +45,7 @@ class NoteFragment : NoteFragmentBase() {
         if (state.showValidationError)
             this.ui.etTitle.error = error
         else
-            this.ui.mainLayout.snackbar(error)
+            this.ui.mainLayout.snackbar(error ?: "")
 
     }
 }
