@@ -24,8 +24,8 @@ class NotesListUseCase(context: Context) {
         return service.deleteNote(note.id, note)
     }
 
-    fun addNote(): Observable<NoteOperationResult> {
-        return Observable.just(NoteOperationResult.Completed(-1))
+    fun showNote(id:Int): Observable<NoteOperationResult> {
+        return Observable.just(NoteOperationResult.Completed(id))
     }
 
     fun updateNote(note: Note): Observable<NoteOperationResult> {

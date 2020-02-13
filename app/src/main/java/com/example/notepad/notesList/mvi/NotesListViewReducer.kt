@@ -139,8 +139,8 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                 }
             }
 
-            is NotesListViewStateChange.NoteAdded -> {
-                when (change.addNoteResult) {
+            is NotesListViewStateChange.noteShowed -> {
+                when (change.showNoteResult) {
                     is NoteOperationResult.NotStarted -> {
                         currentState.notesListOperationResult = NotesListOperationResult.NotStarted
                         currentState.noteOperationResult = NoteOperationResult.NotStarted
@@ -161,7 +161,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
                     is NoteOperationResult.Completed -> {
                         currentState.notesListOperationResult = NotesListOperationResult.NotStarted
                         currentState.noteOperationResult =
-                            NoteOperationResult.Completed(change.addNoteResult.id)
+                            NoteOperationResult.Completed(change.showNoteResult.id)
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = true
                         currentState.deleteChangedNoteFromView = false
@@ -170,7 +170,7 @@ class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateC
 
                     is NoteOperationResult.Failed -> {
                         currentState.notesListOperationResult = NotesListOperationResult.NotStarted
-                        currentState.noteOperationResult = NoteOperationResult.Failed(change.addNoteResult.error)
+                        currentState.noteOperationResult = NoteOperationResult.Failed(change.showNoteResult.error)
                         currentState.showFilterBarError = false
                         currentState.redirectToNoteFragment = false
                         currentState.deleteChangedNoteFromView = false

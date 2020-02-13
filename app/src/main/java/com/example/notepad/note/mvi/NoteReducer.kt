@@ -10,10 +10,12 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
             is NoteViewStateChange.SaveChange -> {
                 when (change.saveResult) {
                     is NoteOperationResult.Completed -> {
-                        currentState.noteOperationResult = NoteOperationResult.Completed
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Completed(change.saveResult.result)
                         currentState.showValidationError = false
                         currentState.changeFavouritesIcon = false
                         currentState.finishActivity = true
+                        currentState.updateTextEdits = false
                     }
 
                     is NoteOperationResult.Failed -> {
@@ -22,16 +24,19 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
                         currentState.showValidationError = false
                         currentState.changeFavouritesIcon = false
                         currentState.finishActivity = false
+                        currentState.updateTextEdits = false
                     }
                 }
             }
             is NoteViewStateChange.ValidationChange -> {
                 when (change.validationResult) {
                     is NoteOperationResult.Completed -> {
-                        currentState.noteOperationResult = NoteOperationResult.Completed
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Completed(change.validationResult.result)
                         currentState.showValidationError = false
                         currentState.changeFavouritesIcon = false
                         currentState.finishActivity = false
+                        currentState.updateTextEdits = false
                     }
 
                     is NoteOperationResult.Failed -> {
@@ -40,6 +45,7 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
                         currentState.showValidationError = true
                         currentState.changeFavouritesIcon = false
                         currentState.finishActivity = false
+                        currentState.updateTextEdits = false
                     }
                 }
             }
@@ -47,10 +53,12 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
             is NoteViewStateChange.FavouriteChange -> {
                 when (change.favouriteResult) {
                     is NoteOperationResult.Completed -> {
-                        currentState.noteOperationResult = NoteOperationResult.Completed
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Completed(change.favouriteResult.result)
                         currentState.showValidationError = false
                         currentState.changeFavouritesIcon = true
                         currentState.finishActivity = false
+                        currentState.updateTextEdits = false
                     }
 
                     is NoteOperationResult.Failed -> {
@@ -59,10 +67,32 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
                         currentState.showValidationError = false
                         currentState.changeFavouritesIcon = false
                         currentState.finishActivity = false
+                        currentState.updateTextEdits = false
                     }
                 }
             }
 
+            is NoteViewStateChange.NoteChange -> {
+                when (change.loadingResult) {
+                    is NoteOperationResult.Completed -> {
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Completed(change.loadingResult.result)
+                        currentState.showValidationError = false
+                        currentState.changeFavouritesIcon = true
+                        currentState.finishActivity = false
+                        currentState.updateTextEdits = true
+                    }
+
+                    is NoteOperationResult.Failed -> {
+                        currentState.noteOperationResult =
+                            NoteOperationResult.Failed(change.loadingResult.error)
+                        currentState.showValidationError = false
+                        currentState.changeFavouritesIcon = false
+                        currentState.finishActivity = false
+                        currentState.updateTextEdits = false
+                    }
+                }
+            }
         }
 
         return currentState

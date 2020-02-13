@@ -6,6 +6,9 @@ import com.example.notepad.db.models.Note
 @Dao
 interface NoteDao {
 
+    @Query("SELECT * FROM Note WHERE id = :id")
+    fun getNoteById(id: Int): Note?
+
     @Query("SELECT * FROM Note ORDER BY created DESC LIMIT :limit OFFSET :offset")
     fun allNotesOrderByDateLimitSkip(limit: Int, offset: Int): List<Note>
 
@@ -15,8 +18,12 @@ interface NoteDao {
     @Query("SELECT * FROM Note LIMIT :limit")
     fun allNotesLimit(limit: Int): List<Note>
 
-    @Query("SELECT * FROM Note WHERE title Like :query ORDER BY created DESC LIMIT :limit OFFSET :offset")
-    fun allNotesFilterByTitleOrderByDateLimitSkip(query: String, limit: Int, offset: Int): List<Note>
+    @Query("SELECT * FROM Note WHERE title LIKE :query ORDER BY created DESC LIMIT :limit OFFSET :offset")
+    fun allNotesFilterByTitleOrderByDateLimitSkip(
+        query: String,
+        limit: Int,
+        offset: Int
+    ): List<Note>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(notes: List<Note>)

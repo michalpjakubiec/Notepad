@@ -18,6 +18,13 @@ class NoteUseCase(context: Context) {
     }
 
     fun saveNote(note: Note): Observable<NoteOperationResult> {
-        return service.saveNote(note)
+        return if (note.id == 0)
+            service.saveNote(note)
+        else
+            service.updateNote(note)
+    }
+
+    fun getNote(id: Int): Observable<NoteOperationResult> {
+        return service.getNote(id)
     }
 }

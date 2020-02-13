@@ -29,8 +29,8 @@ class NotesListService(context: Context) {
             id
         }.doOnNext { db.delete(note) }
             .map { NoteOperationResult.Completed(it) as NoteOperationResult }
-            .subscribeOn(Schedulers.io())
             .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
+            .subscribeOn(Schedulers.io())
     }
 
     fun updateNote(
@@ -42,8 +42,9 @@ class NotesListService(context: Context) {
             db.insert(updatedNote)
         }.map { update ->
             NoteOperationResult.Completed(update.id) as NoteOperationResult
-        }.subscribeOn(Schedulers.io())
+        }
             .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
+            .subscribeOn(Schedulers.io())
     }
 
     fun loadNotes(filter: String, limit: Int, skip: Int): Observable<NotesListOperationResult> {
@@ -67,7 +68,9 @@ class NotesListService(context: Context) {
             val items: List<Note> = Gson().fromJson(json, listType)
             db.insert(items)
             NotesListOperationResult.Completed(items)
-        }).subscribeOn(Schedulers.io())
+        })
+            .onErrorReturn { NotesListOperationResult.Failed(it.message.toString()) }
+            .subscribeOn(Schedulers.io())
     }
 
     fun loadNotes(limit: Int, skip: Int): Observable<NotesListOperationResult> {
@@ -87,7 +90,8 @@ class NotesListService(context: Context) {
                 val items: List<Note> = Gson().fromJson(json, listType)
                 db.insert(items)
                 NotesListOperationResult.Completed(items)
-            }).onErrorReturn { NotesListOperationResult.Failed(it.message.toString()) }
+            })
+            .onErrorReturn { NotesListOperationResult.Failed(it.message.toString()) }
             .subscribeOn(Schedulers.io())
     }
 }

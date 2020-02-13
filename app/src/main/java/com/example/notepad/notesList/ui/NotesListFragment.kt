@@ -63,14 +63,21 @@ class NotesListFragment : NotesListFragmentBase() {
     }
 
     private fun itemChangeCompletedState(state: NotesListViewState) {
-        if (state.redirectToNoteFragment)
+        val itemId = (state.noteOperationResult as NoteOperationResult.Completed).id
+
+        if (state.redirectToNoteFragment) {
+            val args = Bundle()
+            args.putInt("ID", itemId)
+            val fragment = NoteFragment()
+            fragment.arguments = args
+
             mainActivity
                 .replaceFragment(
-                    NoteFragment(),
+                    fragment,
                     (NotesListFragment::class.simpleName + NoteFragment::class.simpleName)
                 )
+        }
 
-        val itemId = (state.noteOperationResult as NoteOperationResult.Completed).id
         if (state.deleteChangedNoteFromView)
             ui.mAdapter.deletedItem(itemId)
         else

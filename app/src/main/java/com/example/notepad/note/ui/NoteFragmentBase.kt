@@ -32,6 +32,8 @@ abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteVi
     override val validationIntent: Observable<String>
         get() = ui.etTitle.textChanges().map { it.toString().trim() }
 
+    override lateinit var loadingIntent: Observable<Int>
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

@@ -8,6 +8,7 @@ import com.example.notepad.db.models.Note
 import com.example.notepad.utils.toSimpleString
 import kotlinx.android.extensions.LayoutContainer
 import org.jetbrains.anko.image
+import org.jetbrains.anko.sdk27.coroutines.onLongClick
 import java.util.*
 
 class NoteViewHolder(override val containerView: View) :
@@ -17,7 +18,12 @@ class NoteViewHolder(override val containerView: View) :
     private val ui: NoteViewHolderUI = containerView as NoteViewHolderUI
     lateinit var note: Note
 
-    fun bindItem(item: Note, position: Int, updateListener: (Note) -> Unit) {
+    fun bindItem(
+        item: Note,
+        position: Int,
+        updateListener: (Note) -> Unit,
+        longClickListener: (Note) -> Unit
+    ) {
         note = item
 
         ui.mTvTitle.text = item.title
@@ -33,6 +39,10 @@ class NoteViewHolder(override val containerView: View) :
             ui.mBtArchive.setOnClickListener {
                 note.isArchival = true
                 updateListener(note)
+            }
+
+            itemView.onLongClick {
+                longClickListener(note)
             }
         }
 

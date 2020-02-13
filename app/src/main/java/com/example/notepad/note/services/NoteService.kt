@@ -9,7 +9,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import java.lang.Error
 import java.lang.Exception
 
 class NoteService(context: Context) {
@@ -19,28 +18,46 @@ class NoteService(context: Context) {
 
     fun changeFavouriteStatus(note: Note): Observable<NoteOperationResult> {
         return Observable.fromCallable {
-            try {
-                note.isFavourite = !note.isFavourite
-                NoteOperationResult.Completed
-            } catch (ex: Exception) {
-                NoteOperationResult.Failed(ex.toString())
-            }
-        }
+            note.isFavourite = !note.isFavourite
+            NoteOperationResult.Completed(note) as NoteOperationResult
+        }.onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
     }
 
     fun validateNote(title: String): Observable<NoteOperationResult> {
         return Observable.fromCallable {
-            try {
-                if (title.isEmpty())
-                    return@fromCallable NoteOperationResult.Failed("Title must not be blank!")
-                if (title.first().isUpperCase())
-                    return@fromCallable NoteOperationResult.Completed
+            if (title.isEmpty())
+                throw Exception("Title must not be blank!")
+            if (!title.first().isUpperCase())
+                throw Exception("Title must begin with upper case letter!")
 
-                NoteOperationResult.Failed("Title must begin with upper case letter!")
-            } catch (ex: Exception) {
-                NoteOperationResult.Failed(ex.toString())
-            }
+            NoteOperationResult.Completed(null) as NoteOperationResult
+        }.onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
+    }
+
+    fun getNote(id: Int): Observable<NoteOperationResult> {
+        return Observable.fromCallable {
+            val note = db.getNoteById(id) ?: throw Exception("Note not found")
+            NoteOperationResult.Completed(note) as NoteOperationResult
         }
+            .onErrorResumeNext(
+                api.get(id).map {
+                    val note = Gson().fromJson(it, noteType) as Note
+                    NoteOperationResult.Completed(note) as NoteOperationResult
+                })
+            .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
+            .subscribeOn(Schedulers.io())
+    }
+
+    fun updateNote(
+        note: Note
+    ): Observable<NoteOperationResult> {
+        return api.update(note.id, note).map {
+            Gson().fromJson(it, noteType) as Note
+        }
+            .doOnNext { db.insert(it) }
+            .map { NoteOperationResult.Completed(it) as NoteOperationResult }
+            .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
+            .subscribeOn(Schedulers.io())
     }
 
     fun saveNote(note: Note): Observable<NoteOperationResult> {
@@ -49,8 +66,9 @@ class NoteService(context: Context) {
         }
             .doOnNext { db.insert(it) }
             .map {
-                NoteOperationResult.Completed as NoteOperationResult
-            }.subscribeOn(Schedulers.io())
+                NoteOperationResult.Completed(note) as NoteOperationResult
+            }
             .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
+            .subscribeOn(Schedulers.io())
     }
 }

@@ -37,9 +37,17 @@ class NotePresenter(context: Context) : MviBasePresenter<NoteView, NoteViewState
             .observeOn(AndroidSchedulers.mainThread())
             .map { NoteViewStateChange.FavouriteChange(it) }
 
+        val loadingIntent = intent { it.loadingIntent }
+            .observeOn(Schedulers.io())
+            .switchMap {
+                useCase.getNote(it)
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { NoteViewStateChange.NoteChange(it) }
+
 
         val stream = Observable
-            .merge(validationIntent, saveIntent, favouriteIntent)
+            .merge(validationIntent, saveIntent, favouriteIntent, loadingIntent)
             .scan(NoteViewState()) { state: NoteViewState, change: NoteViewStateChange ->
                 return@scan reducer.reduce(state, change)
             }

@@ -42,12 +42,12 @@ class NotesListPresenter(context: Context) :
             .observeOn(Schedulers.io())
             .map { NotesListViewStateChange.NoteDeleted(it) }
 
-        val addNoteIntent = intent { it.addIntent }
+        val addNoteIntent = intent { it.showNoteIntent }
             .switchMap {
-                useCase.addNote()
+                useCase.showNote(it)
             }
             .observeOn(Schedulers.io())
-            .map { NotesListViewStateChange.NoteAdded(it) }
+            .map { NotesListViewStateChange.noteShowed(it) }
 
         val updateNoteIntent = intent { it.updateIntent }
             .switchMap {

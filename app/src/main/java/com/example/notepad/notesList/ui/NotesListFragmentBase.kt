@@ -12,6 +12,7 @@ import com.example.notepad.main.MainActivity
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
 import com.hannesdorfmann.mosby3.mvi.MviFragment
+import com.jakewharton.rxbinding3.recyclerview.flingEvents
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
 import com.jakewharton.rxbinding3.view.clicks
@@ -49,8 +50,8 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
 
     override val deleteIntent: Observable<Note>
         get() = deleteSubject
-    override val addIntent: Observable<Unit>
-        get() = ui.fabAdd.clicks()
+    override val showNoteIntent: Observable<Int>
+        get() = Observable.merge(ui.fabAdd.clicks().map { -1 }, ui.mAdapter.longClickSubject)
     override val updateIntent: Observable<Note>
         get() = ui.mAdapter.updateItemSubject
     override val initialLoadIntent: Observable<Unit>

@@ -14,7 +14,7 @@ sealed class NotesListViewStateChange : ViewStateChangeBase {
     data class NoteDeleted(val deleteNoteResult: NoteOperationResult) :
         NotesListViewStateChange()
 
-    data class NoteAdded(val addNoteResult: NoteOperationResult) :
+    data class noteShowed(val showNoteResult: NoteOperationResult) :
         NotesListViewStateChange()
 
     data class NoteUpdated(val updateNoteResult: NoteOperationResult) :

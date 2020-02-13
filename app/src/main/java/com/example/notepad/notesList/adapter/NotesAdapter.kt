@@ -17,6 +17,7 @@ class NotesAdapter(
     var notes: ArrayList<Note> = ArrayList()
     var pageNumber: Int = 0
     val updateItemSubject: PublishSubject<Note> = PublishSubject.create()
+    val longClickSubject: PublishSubject<Int> = PublishSubject.create()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         return NoteViewHolder(NoteViewHolderUI(context))
@@ -57,6 +58,10 @@ class NotesAdapter(
         updateItemSubject.onNext(item)
     }
 
+    private fun longClicked(item: Note) {
+        longClickSubject.onNext(item.id)
+    }
+
     fun updateItem(id: Int) {
         val item = notes.firstOrNull { it.id == id }
         item ?: return
@@ -65,7 +70,7 @@ class NotesAdapter(
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val note = notes[position]
-        holder.bindItem(note, position, this::noteUpdated)
+        holder.bindItem(note, position, this::noteUpdated, this::longClicked)
     }
 
     override fun getItemCount(): Int = notes.size

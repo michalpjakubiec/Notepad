@@ -8,6 +8,7 @@ interface NoteView : MvpView {
     val saveIntent: Observable<Note>
     val validationIntent: Observable<String>
     val favouriteIntent: Observable<Note>
+    val loadingIntent: Observable<Int>
 
     fun render(state: NoteViewState)
 }
