@@ -18,7 +18,7 @@ class NoteUseCase(context: Context) {
     }
 
     fun saveNote(note: Note): Observable<NoteOperationResult> {
-        return if (note.id == 0)
+        return if (note.id < 1)
             service.saveNote(note)
         else
             service.updateNote(note)

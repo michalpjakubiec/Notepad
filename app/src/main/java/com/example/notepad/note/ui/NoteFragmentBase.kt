@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.notepad.components.note.NoteFragmentUI
 import com.example.notepad.db.models.Note
-import com.example.notepad.main.MainActivity
+import com.example.notepad.main.ui.MainActivity
 import com.example.notepad.note.mvi.NotePresenter
 import com.example.notepad.note.mvi.NoteView
 import com.hannesdorfmann.mosby3.mvi.MviFragment

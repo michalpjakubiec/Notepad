@@ -2,17 +2,19 @@ package com.example.notepad.note.ui
 
 import android.os.Bundle
 import com.example.notepad.R
+import com.example.notepad.base.HaveTag
 import com.example.notepad.db.models.Note
+import com.example.notepad.main.utils.ReplaceFragmentArguments
 import com.example.notepad.note.mvi.NoteViewState
 import com.example.notepad.note.utils.NoteOperationResult
-import com.example.notepad.notesList.ui.NotesListFragment
+import com.example.notepad.utils.NOTE_FRAGMENT_TAG
 import io.reactivex.Completable
 import io.reactivex.Observable
 import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.support.v4.toast
 import java.util.*
 
-class NoteFragment : NoteFragmentBase() {
+class NoteFragment : NoteFragmentBase(), HaveTag {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val id = this.arguments?.getInt("ID", -1) ?: -1
@@ -47,9 +49,12 @@ class NoteFragment : NoteFragmentBase() {
 
         if (state.finishActivity) {
             toast(context!!.getString(R.string.notesSavedToast))
-            mainActivity.replaceFragment(
-                NotesListFragment(),
-                (NoteFragment::class.simpleName + NotesListFragment::class.simpleName)
+            mainActivity.redirectSubject.onNext(
+                ReplaceFragmentArguments(
+                    -1,
+                    redirectToNoteFragment = false,
+                    redirectToNotesListFragment = true
+                )
             )
         }
     }
@@ -62,5 +67,9 @@ class NoteFragment : NoteFragmentBase() {
             this.ui.mainLayout.snackbar(error ?: "")
 
         this.ui.saveMenuItem.isEnabled = false
+    }
+
+    override fun getFragmentTag(): String {
+        return NOTE_FRAGMENT_TAG
     }
 }
