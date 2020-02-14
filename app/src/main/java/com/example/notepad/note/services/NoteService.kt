@@ -1,20 +1,14 @@
 package com.example.notepad.note.services
 
 import android.content.Context
-import com.example.notepad.db.NoteDatabase
+import com.example.notepad.db.NoteRepository
 import com.example.notepad.db.models.Note
 import com.example.notepad.note.utils.NoteOperationResult
-import com.example.notepad.service.NoteAPIService
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
-import java.lang.Exception
 
 class NoteService(context: Context) {
-    private val db by lazy { NoteDatabase.get(context).noteDao() }
-    private val api by lazy { NoteAPIService.getService() }
-    private val noteType = object : TypeToken<Note>() {}.type
+
+    private val repository by lazy { NoteRepository(context) }
 
     fun changeFavouriteStatus(note: Note): Observable<NoteOperationResult> {
         return Observable.fromCallable {
@@ -35,40 +29,31 @@ class NoteService(context: Context) {
     }
 
     fun getNote(id: Int): Observable<NoteOperationResult> {
-        return Observable.fromCallable {
-            val note = db.getNoteById(id) ?: throw Exception("Note not found")
-            NoteOperationResult.Completed(note) as NoteOperationResult
+        return repository.getNote(id).map {
+            if (it.error.isEmpty())
+                return@map NoteOperationResult.Completed(it.note)
+            else
+                return@map NoteOperationResult.Failed(it.error)
         }
-            .onErrorResumeNext(
-                api.get(id).map {
-                    val note = Gson().fromJson(it, noteType) as Note
-                    NoteOperationResult.Completed(note) as NoteOperationResult
-                })
-            .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
-            .subscribeOn(Schedulers.io())
     }
 
     fun updateNote(
         note: Note
     ): Observable<NoteOperationResult> {
-        return api.update(note.id, note).map {
-            Gson().fromJson(it, noteType) as Note
+        return repository.updateNote(note).map {
+            if (it.error.isEmpty())
+                return@map NoteOperationResult.Completed(it.note)
+            else
+                return@map NoteOperationResult.Failed(it.error)
         }
-            .doOnNext { db.insert(it) }
-            .map { NoteOperationResult.Completed(it) as NoteOperationResult }
-            .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
-            .subscribeOn(Schedulers.io())
     }
 
     fun saveNote(note: Note): Observable<NoteOperationResult> {
-        return api.add(note).map {
-            Gson().fromJson(it, noteType) as Note
+        return repository.saveNote(note).map {
+            if (it.error.isEmpty())
+                return@map NoteOperationResult.Completed(it.note)
+            else
+                return@map NoteOperationResult.Failed(it.error)
         }
-            .doOnNext { db.insert(it) }
-            .map {
-                NoteOperationResult.Completed(note) as NoteOperationResult
-            }
-            .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
-            .subscribeOn(Schedulers.io())
     }
 }
