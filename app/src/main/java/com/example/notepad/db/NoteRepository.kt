@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.notepad.db.models.Note
 import com.example.notepad.db.response.DeleteNoteDbResponse
 import com.example.notepad.db.response.NoteDbResponse
+import com.example.notepad.db.response.NotesListDbResponse
 import com.example.notepad.service.NoteAPIService
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -67,11 +68,11 @@ class NoteRepository(context: Context) {
             .subscribeOn(Schedulers.io())
     }
 
-    fun loadNotes(filter: String, limit: Int, skip: Int): Observable<Pair<String, List<Note>>> {
+    fun loadNotes(filter: String, limit: Int, skip: Int): Observable<NotesListDbResponse> {
         return Observable.fromCallable {
             try {
                 if (filter.isNotEmpty() && filter.length < 3)
-                    return@fromCallable Pair(
+                    return@fromCallable NotesListDbResponse(
                         "Query must be longer than 2 characters",
                         listOf<Note>()
                     )
@@ -82,39 +83,39 @@ class NoteRepository(context: Context) {
                 if (items.size < limit)
                     throw Error("Page is not full")
 
-                Pair("", items)
+                NotesListDbResponse("", items)
 
             } catch (ex: Exception) {
-                Pair(ex.toString(), listOf<Note>())
+                NotesListDbResponse(ex.toString(), listOf<Note>())
             }
         }.onErrorResumeNext(api.getNotes(limit, skip, filter).map { json ->
             val items: List<Note> = Gson().fromJson(json, listType)
             db.insert(items)
-            Pair("", items)
+            NotesListDbResponse("", items)
         })
-            .onErrorReturn { Pair(it.message.toString(), listOf()) }
+            .onErrorReturn { NotesListDbResponse(it.message.toString(), listOf()) }
             .subscribeOn(Schedulers.io())
     }
 
-    fun loadNotes(limit: Int, skip: Int): Observable<Pair<String, List<Note>>> {
+    fun loadNotes(limit: Int, skip: Int): Observable<NotesListDbResponse> {
         return Observable.fromCallable {
             try {
                 val items = db.allNotesOrderByDateLimitSkip(limit, skip)
                 if (items.size < limit)
                     throw Error("Page is not full")
 
-                return@fromCallable Pair("", items)
+                return@fromCallable NotesListDbResponse("", items)
 
             } catch (ex: Exception) {
-                return@fromCallable Pair(ex.toString(), listOf<Note>())
+                return@fromCallable NotesListDbResponse(ex.toString(), listOf())
             }
         }.onErrorResumeNext(
             api.getNotes(limit, skip).map { json ->
                 val items: List<Note> = Gson().fromJson(json, listType)
                 db.insert(items)
-                Pair("", items)
+                NotesListDbResponse("", items)
             })
-            .onErrorReturn { Pair(it.message.toString(), listOf()) }
+            .onErrorReturn { NotesListDbResponse(it.message.toString(), listOf()) }
             .subscribeOn(Schedulers.io())
     }
 

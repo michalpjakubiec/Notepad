@@ -35,19 +35,19 @@ class NotesListService(context: Context) {
 
     fun loadNotes(filter: String, limit: Int, skip: Int): Observable<NotesListOperationResult> {
         return repository.loadNotes(filter, limit, skip).map {
-            if (it.first.isEmpty())
-                return@map NotesListOperationResult.Completed(it.second)
+            if (it.error.isEmpty())
+                return@map NotesListOperationResult.Completed(it.notes)
             else
-                return@map NotesListOperationResult.Failed(it.first)
+                return@map NotesListOperationResult.Failed(it.error)
         }
     }
 
     fun loadNotes(limit: Int, skip: Int): Observable<NotesListOperationResult> {
         return repository.loadNotes(limit, skip).map {
-            if (it.first.isEmpty())
-                return@map NotesListOperationResult.Completed(it.second)
+            if (it.error.isEmpty())
+                return@map NotesListOperationResult.Completed(it.notes)
             else
-                return@map NotesListOperationResult.Failed(it.first)
+                return@map NotesListOperationResult.Failed(it.error)
         }
     }
 }
