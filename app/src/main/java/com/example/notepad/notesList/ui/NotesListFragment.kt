@@ -68,7 +68,7 @@ class NotesListFragment : NotesListFragmentBase(), HaveTag {
         val itemId = (state.noteOperationResult as NoteOperationResult.Completed).id
         if (state.redirectToNoteFragment) {
 
-            mainActivity.redirect(
+            mainActivity.redirectSubject.onNext(
                 ReplaceFragmentArguments(
                     itemId,
                     redirectToNoteFragment = true,
