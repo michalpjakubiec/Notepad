@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.components.notesList.NoteViewHolderUI
 import com.example.notepad.db.models.Note
 import io.reactivex.subjects.PublishSubject
-import org.jetbrains.anko.AnkoContext
 
 
 class NotesAdapter(
@@ -24,9 +23,16 @@ class NotesAdapter(
     }
 
     fun deletedItem(id: Int) {
-        val item = notes.firstOrNull { it.id == id }
-        item ?: return
-        this.notifyItemRemoved(notes.indexOf(item))
+        val newList = ArrayList(notes)
+        newList.removeIf { it.id == id }
+
+        val diff = NoteDiffCallback(newList, notes)
+        val result = DiffUtil.calculateDiff(diff)
+
+        this.notes.clear()
+        this.notes.addAll(newList)
+
+        result.dispatchUpdatesTo(this)
     }
 
     fun setItems(items: List<Note>) {
@@ -36,6 +42,7 @@ class NotesAdapter(
         this.notes.clear()
         this.notes.addAll(items)
         this.pageNumber = 1
+
 
         result.dispatchUpdatesTo(this)
     }
@@ -62,10 +69,17 @@ class NotesAdapter(
         longClickSubject.onNext(item.id)
     }
 
-    fun updateItem(id: Int) {
-        val item = notes.firstOrNull { it.id == id }
-        item ?: return
-        this.notifyItemChanged(notes.indexOf(item))
+    fun updateItem(itemId: Int, note: Note) {
+        val newList = ArrayList(notes)
+        newList[newList.indexOfFirst { it.id == itemId }] = note
+
+        val diff = NoteDiffCallback(newList, notes)
+        val result = DiffUtil.calculateDiff(diff)
+
+        this.notes.clear()
+        this.notes.addAll(newList)
+
+        result.dispatchUpdatesTo(this)
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {

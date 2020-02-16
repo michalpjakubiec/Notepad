@@ -1,6 +1,5 @@
 package com.example.notepad.note.ui
 
-import android.os.Bundle
 import com.example.notepad.R
 import com.example.notepad.base.HaveTag
 import com.example.notepad.db.models.Note
@@ -15,14 +14,15 @@ import org.jetbrains.anko.support.v4.toast
 import java.util.*
 
 class NoteFragment : NoteFragmentBase(), HaveTag {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onStart() {
         val id = this.arguments?.getInt("ID", -1) ?: -1
         if (id == -1) {
             note = Note(0, Date().time, "", "", isArchival = false, isFavourite = false)
             this.loadingIntent = Completable.complete().toObservable()
         } else
             this.loadingIntent = Observable.just(id)
+
+        super.onStart()
     }
 
     override fun render(state: NoteViewState) {

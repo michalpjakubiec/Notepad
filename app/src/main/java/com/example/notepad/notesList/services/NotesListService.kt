@@ -27,7 +27,7 @@ class NotesListService(context: Context) {
     ): Observable<NoteOperationResult> {
         return repository.updateNote(note).map {
             if (it.error.isEmpty())
-                return@map NoteOperationResult.Completed(it.note!!.id)
+                return@map NoteOperationResult.Completed(it.note!!.id, it.note)
             else
                 return@map NoteOperationResult.Failed(it.error)
         }

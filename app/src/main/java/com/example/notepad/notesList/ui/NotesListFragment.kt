@@ -67,7 +67,6 @@ class NotesListFragment : NotesListFragmentBase(), HaveTag {
     private fun itemChangeCompletedState(state: NotesListViewState) {
         val itemId = (state.noteOperationResult as NoteOperationResult.Completed).id
         if (state.redirectToNoteFragment) {
-
             mainActivity.redirectSubject.onNext(
                 ReplaceFragmentArguments(
                     itemId,
@@ -80,7 +79,10 @@ class NotesListFragment : NotesListFragmentBase(), HaveTag {
         if (state.deleteChangedNoteFromView)
             ui.mAdapter.deletedItem(itemId)
         else
-            ui.mAdapter.updateItem(itemId)
+            ui.mAdapter.updateItem(
+                itemId,
+                (state.noteOperationResult as NoteOperationResult.Completed).note!!
+            )
     }
 
     private fun initSwipeToDelete() {
