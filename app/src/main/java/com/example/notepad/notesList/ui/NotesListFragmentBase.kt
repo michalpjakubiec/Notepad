@@ -18,6 +18,7 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.TimeUnit
 
 abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPresenter>(),
     NotesListView {
@@ -54,7 +55,7 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
     override val updateIntent: Observable<Note>
         get() = ui.mAdapter.updateItemSubject
     override val initialLoadIntent: Observable<Unit>
-        get() = Observable.just(Unit)
+        get() = Observable.just(Unit).debounce(2, TimeUnit.SECONDS)
     override val refreshIntent: Observable<Unit>
         get() = ui.swipeRefreshLayout.refreshes().map {
             ui.mEtSearch.setText("")
