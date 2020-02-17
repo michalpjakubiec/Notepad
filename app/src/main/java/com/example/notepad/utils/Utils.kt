@@ -1,5 +1,6 @@
 package com.example.notepad.utils
 
+import com.example.notepad.db.models.Note
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -14,4 +15,12 @@ fun Date?.toSimpleString(): String {
 
     val format = SimpleDateFormat("dd.MM.yyy", Locale.getDefault())
     return format.format(this)
+}
+
+fun Note.sameAs(note: Note): Boolean {
+    return this.isFavourite == note.isFavourite
+            && this.isArchival == note.isArchival
+            && this.content == note.content
+            && this.title == note.title
+            && this.id == note.id
 }
