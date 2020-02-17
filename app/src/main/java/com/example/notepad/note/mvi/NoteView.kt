@@ -6,9 +6,8 @@ import io.reactivex.Observable
 
 interface NoteView : MvpView {
     val saveIntent: Observable<Note>
-    val validationIntent: Observable<String>
-    val favouriteIntent: Observable<Note>
-    val loadingIntent: Observable<Int>
+    val loadIntent: Observable<Int>
+    val updateIntent: Observable<Note>
 
     fun render(state: NoteViewState)
 }

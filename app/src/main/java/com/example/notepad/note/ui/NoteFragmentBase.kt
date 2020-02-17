@@ -20,19 +20,29 @@ abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteVi
     lateinit var mainActivity: MainActivity
     lateinit var note: Note
 
+    override lateinit var loadIntent: Observable<Int>
     override val saveIntent: Observable<Note>
-        get() = ui.saveMenuItem.clicks().map {
-            note.title = ui.etTitle.text.toString()
-            note.content = ui.etContent.text.toString()
-            note
-        }
-    override val favouriteIntent: Observable<Note>
-        get() = ui.favouriteMenuItem.clicks().map { note }
+        get() = ui.saveMenuItem.clicks().map { note }
+    override val updateIntent: Observable<Note>
+        get() = Observable.merge(
+            ui.etContent.textChanges()
+                .distinctUntilChanged { t1, t2 -> t1 != t2 }.map {
+                    this.note.content = it.toString()
+                    this.note
+                },
 
-    override val validationIntent: Observable<String>
-        get() = ui.etTitle.textChanges().map { it.toString().trim() }
+            ui.etTitle.textChanges()
+                .distinctUntilChanged { t1, t2 -> t1 != t2 }.map {
+                    this.note.title = it.toString()
+                    this.note
+                },
 
-    override lateinit var loadingIntent: Observable<Int>
+            ui.favouriteMenuItem.clicks()
+                .map {
+                    this.note.isFavourite = !this.note.isFavourite
+                    this.note
+                }
+        )
 
     override fun onCreateView(
         inflater: LayoutInflater,
