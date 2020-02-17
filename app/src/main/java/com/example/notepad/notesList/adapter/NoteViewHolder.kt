@@ -29,7 +29,7 @@ class NoteViewHolder(override val containerView: View) :
         ui.mTvTitle.text = item.title
         ui.mTvDate.text = Date(item.created).toSimpleString()
         val shortContent =
-            if (item.content?.length != null && item.content!!.length > 15) item.content?.take(15) + "..." else item.content
+            if (item.content.length > 15) item.content.take(15) + "..." else item.content
         ui.mTvContent.text = shortContent
 
         if (item.isArchival) {
@@ -44,11 +44,11 @@ class NoteViewHolder(override val containerView: View) :
             itemView.onLongClick {
                 longClickListener(note)
             }
-        }
 
-        ui.mIbFav.setOnClickListener {
-            note.isFavourite = !note.isFavourite
-            updateListener(note)
+            ui.mIbFav.setOnClickListener {
+                note.isFavourite = !note.isFavourite
+                updateListener(note)
+            }
         }
 
         if (item.isFavourite)

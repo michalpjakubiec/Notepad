@@ -70,20 +70,15 @@ class NotesAdapter(
     }
 
     fun updateItem(itemId: Int, note: Note) {
-        val newList = ArrayList(notes)
-        newList[newList.indexOfFirst { it.id == itemId }] = note
-
-        val diff = NoteDiffCallback(newList, notes)
-        val result = DiffUtil.calculateDiff(diff)
-
-        this.notes.clear()
-        this.notes.addAll(newList)
-
-        result.dispatchUpdatesTo(this)
+        val index = this.notes.indexOfFirst { it.id == itemId }
+        notes[index] = note
+        this.notifyItemChanged(index)
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val note = notes[position]
+
+
         holder.bindItem(note, position, this::noteUpdated, this::longClicked)
     }
 
