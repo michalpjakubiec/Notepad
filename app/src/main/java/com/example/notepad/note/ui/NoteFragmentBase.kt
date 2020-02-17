@@ -7,30 +7,45 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.notepad.components.note.NoteFragmentUI
 import com.example.notepad.db.models.Note
-import com.example.notepad.main.MainActivity
+import com.example.notepad.main.ui.MainActivity
 import com.example.notepad.note.mvi.NotePresenter
 import com.example.notepad.note.mvi.NoteView
+import com.example.notepad.utils.sameContent
 import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 
 abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteView {
     lateinit var ui: NoteFragmentUI
     lateinit var mainActivity: MainActivity
-    lateinit var note: Note
+    var note: Note = Note()
 
+    val loadSubject: PublishSubject<Int> = PublishSubject.create()
+    override val loadIntent: Observable<Int> = loadSubject
     override val saveIntent: Observable<Note>
-        get() = ui.saveMenuItem.clicks().map {
-            note.title = ui.etTitle.text.toString()
-            note.content = ui.etContent.text.toString()
-            note
-        }
-    override val favouriteIntent: Observable<Note>
-        get() = ui.favouriteMenuItem.clicks().map { note }
+        get() = ui.saveMenuItem.clicks().map { note }
+    override val updateIntent: Observable<Note>
+        get() = Observable.merge(
+            ui.etContent.textChanges()
+                .distinctUntilChanged { t1, t2 -> t1 != t2 }.map {
+                    this.note.content = it.toString()
+                    this.note
+                },
 
-    override val validationIntent: Observable<String>
-        get() = ui.etTitle.textChanges().map { it.toString().trim() }
+            ui.etTitle.textChanges()
+                .distinctUntilChanged { t1, t2 -> t1 != t2 }.map {
+                    this.note.title = it.toString()
+                    this.note
+                },
+
+            ui.favouriteMenuItem.clicks()
+                .map {
+                    this.note.isFavourite = !this.note.isFavourite
+                    this.note
+                }
+        ).distinctUntilChanged { t1, t2 -> !t1.sameContent(t2) }
 
     override fun onCreateView(
         inflater: LayoutInflater,

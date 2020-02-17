@@ -1,56 +1,59 @@
 package com.example.notepad.note.services
 
 import android.content.Context
-import com.example.notepad.db.NoteDatabase
+import com.example.notepad.db.NoteRepository
 import com.example.notepad.db.models.Note
+import com.example.notepad.note.utils.NoteLoadSaveResult
 import com.example.notepad.note.utils.NoteOperationResult
-import com.example.notepad.service.NoteAPIService
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
-import java.lang.Error
-import java.lang.Exception
 
 class NoteService(context: Context) {
-    private val db by lazy { NoteDatabase.get(context).noteDao() }
-    private val api by lazy { NoteAPIService.getService() }
-    private val noteType = object : TypeToken<Note>() {}.type
 
-    fun changeFavouriteStatus(note: Note): Observable<NoteOperationResult> {
+    private val repository by lazy { NoteRepository(context) }
+
+    fun validateNoteDetails(note: Note): Observable<NoteOperationResult> {
         return Observable.fromCallable {
-            try {
-                note.isFavourite = !note.isFavourite
-                NoteOperationResult.Completed
-            } catch (ex: Exception) {
-                NoteOperationResult.Failed(ex.toString())
-            }
+            if (note.title.isNullOrEmpty())
+                throw Exception("Title must not be blank!")
+            if (!note.title.first().isUpperCase())
+                throw Exception("Title must begin with upper case letter!")
+
+            NoteOperationResult.Completed(note) as NoteOperationResult
+        }.onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
+    }
+
+    fun getNote(id: Int): Observable<NoteLoadSaveResult> {
+        return repository.getNote(id).map {
+            if (it.error.isEmpty())
+                return@map NoteLoadSaveResult.Completed(it.note)
+            else
+                return@map NoteLoadSaveResult.Failed(it.error)
         }
     }
 
-    fun validateNote(title: String): Observable<NoteOperationResult> {
-        return Observable.fromCallable {
-            try {
-                if (title.isEmpty())
-                    return@fromCallable NoteOperationResult.Failed("Title must not be blank!")
-                if (title.first().isUpperCase())
-                    return@fromCallable NoteOperationResult.Completed
+    fun createNote(): Observable<NoteLoadSaveResult> {
+        return Observable
+            .just(NoteLoadSaveResult.Completed(Note()) as NoteLoadSaveResult)
+            .onErrorReturn { NoteLoadSaveResult.Failed(it.message.toString()) }
+    }
 
-                NoteOperationResult.Failed("Title must begin with upper case letter!")
-            } catch (ex: Exception) {
-                NoteOperationResult.Failed(ex.toString())
-            }
+    fun updateNote(
+        note: Note
+    ): Observable<NoteLoadSaveResult> {
+        return repository.updateNote(note).map {
+            if (it.error.isEmpty())
+                return@map NoteLoadSaveResult.Completed(it.note)
+            else
+                return@map NoteLoadSaveResult.Failed(it.error)
         }
     }
 
-    fun saveNote(note: Note): Observable<NoteOperationResult> {
-        return api.add(note).map {
-            Gson().fromJson(it, noteType) as Note
+    fun saveNote(note: Note): Observable<NoteLoadSaveResult> {
+        return repository.saveNote(note).map {
+            if (it.error.isEmpty())
+                return@map NoteLoadSaveResult.Completed(it.note)
+            else
+                return@map NoteLoadSaveResult.Failed(it.error)
         }
-            .doOnNext { db.insert(it) }
-            .map {
-                NoteOperationResult.Completed as NoteOperationResult
-            }.subscribeOn(Schedulers.io())
-            .onErrorReturn { NoteOperationResult.Failed(it.message.toString()) }
     }
 }

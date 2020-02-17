@@ -2,10 +2,10 @@ package com.example.notepad.components.notesList
 
 import android.content.Context
 import android.graphics.Color
-import android.view.Gravity
 import android.view.View
-import android.widget.*
-import com.example.notepad.R
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
 import org.jetbrains.anko.*
 
 class NoteViewHolderUI(context: Context) : LinearLayout(context) {
@@ -13,7 +13,7 @@ class NoteViewHolderUI(context: Context) : LinearLayout(context) {
     lateinit var mTvTitle: TextView
     lateinit var mTvDate: TextView
     lateinit var mTvContent: TextView
-    lateinit var mBtArchive: Button
+    lateinit var mBtArchive: ImageButton
     lateinit var mIbFav: ImageButton
 
     init {
@@ -21,44 +21,51 @@ class NoteViewHolderUI(context: Context) : LinearLayout(context) {
             this.orientation = VERTICAL
             lparams(matchParent, matchParent)
 
-            relativeLayout {
-                mTvTitle = textView {
-                    id = View.generateViewId()
-                    textSize = 18f
-                }.lparams {
-                    alignParentStart()
-                    alignParentTop()
-                }
+            verticalLayout {
+                relativeLayout {
+                    mTvTitle = textView {
+                        id = View.generateViewId()
+                        textSize = 18f
+                    }.lparams {
+                        alignParentStart()
+                        alignParentTop()
+                    }
 
-                mIbFav = imageButton {
-                    id = View.generateViewId()
-                    backgroundColor = Color.TRANSPARENT
-                }.lparams {
-                    endOf(mTvTitle)
-                    alignParentTop()
-                }
+                    mIbFav = imageButton {
+                        id = View.generateViewId()
+                        backgroundColor = Color.TRANSPARENT
+                    }.lparams {
+                        alignParentTop()
+                        marginStart = dip(70)
+                    }
 
-                mTvDate = textView {
-                    id = View.generateViewId()
-                    textSize = 18f
-                }.lparams {
-                    alignParentTop()
-                    centerHorizontally()
-                }
+                    mTvDate = textView {
+                        id = View.generateViewId()
+                        textSize = 18f
+                    }.lparams {
+                        alignParentTop()
+                        centerHorizontally()
+                    }
 
-                mBtArchive = button {
-                    id = View.generateViewId()
-                    text = context.resources.getText(R.string.btArchive)
-                }.lparams {
-                    alignParentEnd()
-                    alignParentTop()
-                }
-            }.lparams(matchParent, wrapContent)
+                    mBtArchive = imageButton {
+                        id = View.generateViewId()
+                        backgroundColor = Color.TRANSPARENT
+                    }.lparams {
+                        alignParentEnd()
+                        alignParentTop()
+                    }
+                }.lparams(matchParent, wrapContent)
 
-            mTvContent = textView {
-                id = View.generateViewId()
-                textSize = 14f
-            }.lparams(matchParent, wrapContent)
+                mTvContent = textView {
+                    id = View.generateViewId()
+                    textSize = 14f
+                }.lparams(matchParent, wrapContent)
+
+            }.lparams {
+                width = matchParent
+                height = matchParent
+                margin = dip(15)
+            }
         }
     }
 }

@@ -4,14 +4,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.notepad.note.ui.NoteFragment
+import com.example.notepad.base.HaveTag
+import com.example.notepad.main.utils.ReplaceFragmentArguments
 import com.example.notepad.notesList.adapter.NoteViewHolder
 import com.example.notepad.notesList.mvi.NotesListViewState
 import com.example.notepad.notesList.utils.NoteOperationResult
 import com.example.notepad.notesList.utils.NotesListOperationResult
+import com.example.notepad.utils.NOTES_LIST_FRAGMENT_TAG
 import org.jetbrains.anko.design.snackbar
 
-class NotesListFragment : NotesListFragmentBase() {
+class NotesListFragment : NotesListFragmentBase(), HaveTag {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -63,18 +65,24 @@ class NotesListFragment : NotesListFragmentBase() {
     }
 
     private fun itemChangeCompletedState(state: NotesListViewState) {
-        if (state.redirectToNoteFragment)
-            mainActivity
-                .replaceFragment(
-                    NoteFragment(),
-                    (NotesListFragment::class.simpleName + NoteFragment::class.simpleName)
-                )
-
         val itemId = (state.noteOperationResult as NoteOperationResult.Completed).id
+        if (state.redirectToNoteFragment) {
+            mainActivity.redirectSubject.onNext(
+                ReplaceFragmentArguments(
+                    itemId,
+                    redirectToNoteFragment = true,
+                    redirectToNotesListFragment = false
+                )
+            )
+            return
+        }
         if (state.deleteChangedNoteFromView)
             ui.mAdapter.deletedItem(itemId)
         else
-            ui.mAdapter.updateItem(itemId)
+            ui.mAdapter.updateItem(
+                itemId,
+                (state.noteOperationResult as NoteOperationResult.Completed).note!!
+            )
     }
 
     private fun initSwipeToDelete() {
@@ -94,5 +102,9 @@ class NotesListFragment : NotesListFragmentBase() {
                 deleteSubject.onNext((viewHolder as NoteViewHolder).note)
             }
         }).attachToRecyclerView(ui.mRecycler)
+    }
+
+    override fun getFragmentTag(): String {
+        return NOTES_LIST_FRAGMENT_TAG
     }
 }

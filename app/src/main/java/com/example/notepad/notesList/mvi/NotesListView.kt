@@ -8,7 +8,7 @@ interface NotesListView : MvpView {
     val searchIntent: Observable<String>
     val nextPageIntent: Observable<Pair<String, Int>>
     val deleteIntent: Observable<Note>
-    val addIntent: Observable<Unit>
+    val showNoteIntent: Observable<Int>
     val updateIntent: Observable<Note>
     val initialLoadIntent: Observable<Unit>
     val refreshIntent: Observable<Unit>

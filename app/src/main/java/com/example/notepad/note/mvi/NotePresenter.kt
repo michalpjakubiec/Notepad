@@ -13,14 +13,6 @@ class NotePresenter(context: Context) : MviBasePresenter<NoteView, NoteViewState
     private val useCase by lazy { NoteUseCase(context) }
 
     override fun bindIntents() {
-        val validationIntent = intent { it.validationIntent }
-            .observeOn(Schedulers.io())
-            .switchMap {
-                useCase.validateNote(it)
-            }
-            .observeOn(AndroidSchedulers.mainThread())
-            .map { NoteViewStateChange.ValidationChange(it) }
-
         val saveIntent = intent { it.saveIntent }
             .subscribeOn(Schedulers.io())
             .switchMap {
@@ -29,17 +21,24 @@ class NotePresenter(context: Context) : MviBasePresenter<NoteView, NoteViewState
             .observeOn(AndroidSchedulers.mainThread())
             .map { NoteViewStateChange.SaveChange(it) }
 
-        val favouriteIntent = intent { it.favouriteIntent }
+        val loadIntent = intent { it.loadIntent }
             .observeOn(Schedulers.io())
             .switchMap {
-                useCase.changeFavouriteStatus(it)
+                useCase.getNote(it)
             }
             .observeOn(AndroidSchedulers.mainThread())
-            .map { NoteViewStateChange.FavouriteChange(it) }
+            .map { NoteViewStateChange.NoteChange(it) }
+
+        val updateIntent = intent { it.updateIntent }
+            .observeOn(Schedulers.io())
+            .switchMap {
+                useCase.updateNoteDetails(it)
+            }.observeOn(AndroidSchedulers.mainThread())
+            .map { NoteViewStateChange.NoteDetailsChanged(it) }
 
 
         val stream = Observable
-            .merge(validationIntent, saveIntent, favouriteIntent)
+            .merge(saveIntent, updateIntent, loadIntent)
             .scan(NoteViewState()) { state: NoteViewState, change: NoteViewStateChange ->
                 return@scan reducer.reduce(state, change)
             }

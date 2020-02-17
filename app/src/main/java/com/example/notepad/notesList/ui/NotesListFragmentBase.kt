@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.notepad.components.notesList.NotesListFragmentUI
 import com.example.notepad.db.models.Note
-import com.example.notepad.main.MainActivity
+import com.example.notepad.main.ui.MainActivity
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
 import com.hannesdorfmann.mosby3.mvi.MviFragment
@@ -18,6 +18,7 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.TimeUnit
 
 abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPresenter>(),
     NotesListView {
@@ -47,14 +48,14 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
                 Pair(ui.mEtSearch.text.toString(), skipItems)
             }
 
+    override val showNoteIntent: Observable<Int>
+        get() = Observable.merge(ui.fabAdd.clicks().map { -1 }, ui.mAdapter.longClickSubject)
     override val deleteIntent: Observable<Note>
         get() = deleteSubject
-    override val addIntent: Observable<Unit>
-        get() = ui.fabAdd.clicks()
     override val updateIntent: Observable<Note>
         get() = ui.mAdapter.updateItemSubject
     override val initialLoadIntent: Observable<Unit>
-        get() = Observable.just(Unit)
+        get() = Observable.just(Unit).debounce(2, TimeUnit.SECONDS)
     override val refreshIntent: Observable<Unit>
         get() = ui.swipeRefreshLayout.refreshes().map {
             ui.mEtSearch.setText("")

@@ -3,16 +3,6 @@ package com.example.notepad.utils
 import com.example.notepad.db.models.Note
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
-
-fun List<Note>?.filterByTitle(query: String): List<Note> {
-    this ?: return listOf()
-    return this.filter { x ->
-        x.title!!.toLowerCase(Locale.ROOT).removeWhiteCharacters()
-            .contains(query.removeWhiteCharacters())
-    }
-        .toList()
-}
 
 fun String?.removeWhiteCharacters(): String {
     this ?: return ""
@@ -25,4 +15,19 @@ fun Date?.toSimpleString(): String {
 
     val format = SimpleDateFormat("dd.MM.yyy", Locale.getDefault())
     return format.format(this)
+}
+
+fun Note.sameAs(note: Note): Boolean {
+    return this.isFavourite == note.isFavourite
+            && this.isArchival == note.isArchival
+            && this.content == note.content
+            && this.title == note.title
+            && this.id == note.id
+}
+
+fun Note.sameContent(note: Note): Boolean {
+    return this.isArchival == note.isArchival
+            && this.content == note.content
+            && this.title == note.title
+            && this.id == note.id
 }
