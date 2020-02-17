@@ -35,6 +35,7 @@ class NoteFragment : NoteFragmentBase(), HaveTag {
     private fun noteOperationStateCompleted(state: NoteViewState) {
         this.ui.etTitle.error = null
         this.ui.saveMenuItem.isEnabled = true
+        this.ui.saveMenuItem.icon = context!!.getDrawable(R.drawable.ic_save_white_24dp)
 
         if (state.updateTextEdits) {
             note = (state.noteOperationResult as NoteOperationResult.Completed).result!!
@@ -67,6 +68,7 @@ class NoteFragment : NoteFragmentBase(), HaveTag {
             this.ui.mainLayout.snackbar(error ?: "")
 
         this.ui.saveMenuItem.isEnabled = false
+        this.ui.saveMenuItem.icon = context!!.getDrawable(R.drawable.ic_save_black_24dp)
     }
 
     override fun getFragmentTag(): String {
