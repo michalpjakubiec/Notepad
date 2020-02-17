@@ -8,7 +8,6 @@ import com.example.notepad.db.models.Note
 import com.example.notepad.utils.toSimpleString
 import kotlinx.android.extensions.LayoutContainer
 import org.jetbrains.anko.image
-import org.jetbrains.anko.sdk27.coroutines.onLongClick
 import java.util.*
 
 class NoteViewHolder(override val containerView: View) :
@@ -32,29 +31,35 @@ class NoteViewHolder(override val containerView: View) :
             if (item.content.length > 15) item.content.take(15) + "..." else item.content
         ui.mTvContent.text = shortContent
 
-        if (item.isArchival) {
-            ui.mBtArchive.visibility = View.INVISIBLE
-        } else {
-            ui.mBtArchive.visibility = View.VISIBLE
-            ui.mBtArchive.setOnClickListener {
-                note.isArchival = true
-                updateListener(note)
-            }
-
-            itemView.onLongClick {
+        if (!item.isArchival) {
+            itemView.setOnLongClickListener {
                 longClickListener(note)
+                true
             }
 
             ui.mIbFav.setOnClickListener {
                 note.isFavourite = !note.isFavourite
                 updateListener(note)
             }
+        } else {
+            itemView.setOnLongClickListener(null)
+            ui.mIbFav.setOnClickListener(null)
+        }
+
+        ui.mBtArchive.setOnClickListener {
+            note.isArchival = !note.isArchival
+            updateListener(note)
         }
 
         if (item.isFavourite)
             ui.mIbFav.image = itemView.context.getDrawable(R.drawable.ic_favorite_white_24dp)
         else
             ui.mIbFav.image = itemView.context.getDrawable(R.drawable.ic_favorite_border_white_24dp)
+
+        if (item.isArchival)
+            ui.mBtArchive.image = itemView.context.getDrawable(R.drawable.ic_unarchive_white_24dp)
+        else
+            ui.mBtArchive.image = itemView.context.getDrawable(R.drawable.ic_archive_white_24dp)
 
         itemView.background =
             itemView.context.getDrawable(getBackgroundColor(position, item.isArchival))
