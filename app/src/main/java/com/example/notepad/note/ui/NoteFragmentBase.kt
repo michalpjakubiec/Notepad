@@ -14,13 +14,15 @@ import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 
 abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteView {
     lateinit var ui: NoteFragmentUI
     lateinit var mainActivity: MainActivity
-    lateinit var note: Note
+    var note: Note = Note()
 
-    override lateinit var loadIntent: Observable<Int>
+    val loadSubject: PublishSubject<Int> = PublishSubject.create()
+    override val loadIntent: Observable<Int> = loadSubject
     override val saveIntent: Observable<Note>
         get() = ui.saveMenuItem.clicks().map { note }
     override val updateIntent: Observable<Note>

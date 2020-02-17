@@ -15,7 +15,7 @@ class NoteService(context: Context) {
         return Observable.fromCallable {
             if (note.title.isNullOrEmpty())
                 throw Exception("Title must not be blank!")
-            if (!note.title!!.first().isUpperCase())
+            if (!note.title.first().isUpperCase())
                 throw Exception("Title must begin with upper case letter!")
 
             NoteOperationResult.Completed(note) as NoteOperationResult
@@ -29,6 +29,12 @@ class NoteService(context: Context) {
             else
                 return@map NoteLoadSaveResult.Failed(it.error)
         }
+    }
+
+    fun createNote(): Observable<NoteLoadSaveResult> {
+        return Observable
+            .just(NoteLoadSaveResult.Completed(Note()) as NoteLoadSaveResult)
+            .onErrorReturn { NoteLoadSaveResult.Failed(it.message.toString()) }
     }
 
     fun updateNote(

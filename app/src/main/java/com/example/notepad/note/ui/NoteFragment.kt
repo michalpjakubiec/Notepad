@@ -3,33 +3,33 @@ package com.example.notepad.note.ui
 import android.os.Bundle
 import com.example.notepad.R
 import com.example.notepad.base.HaveTag
-import com.example.notepad.db.models.Note
 import com.example.notepad.main.utils.ReplaceFragmentArguments
 import com.example.notepad.note.mvi.NoteViewState
 import com.example.notepad.note.utils.NoteLoadSaveResult
 import com.example.notepad.note.utils.NoteOperationResult
 import com.example.notepad.utils.NOTE_FRAGMENT_TAG
-import io.reactivex.Completable
-import io.reactivex.Observable
 import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.support.v4.toast
-import java.util.*
 
 class NoteFragment : NoteFragmentBase(), HaveTag {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         val id = this.arguments?.getInt("ID", -1) ?: -1
-        if (id == -1) {
-            note = Note(0, Date().time, "", "", isArchival = false, isFavourite = false)
-            this.loadIntent = Completable.complete().toObservable()
-        } else
-            this.loadIntent = Observable.just(id)
-
+        if (this.note.id != id)
+            loadSubject.onNext(id)
     }
 
     override fun render(state: NoteViewState) {
+        if (isRestoringViewState) {
+            refreshAll()
+            return
+        }
         when (state.noteOperationResult) {
             is NoteOperationResult.Failed -> noteOperationStateFailed(state)
             is NoteOperationResult.Completed -> noteOperationStateCompleted(state)
@@ -44,12 +44,7 @@ class NoteFragment : NoteFragmentBase(), HaveTag {
         handleCompleted()
 
         if (state.updateNote)
-            this.ui.favouriteMenuItem.icon =
-                if (note.isFavourite) context!!.getDrawable(R.drawable.ic_favorite_white_24dp)
-                else context!!.getDrawable(R.drawable.ic_favorite_border_white_24dp)
-
-        if (isRestoringViewState)
-            refreshTextEdits()
+            refreshFavIcon()
     }
 
     private fun noteOperationStateFailed(state: NoteViewState) {
@@ -61,11 +56,7 @@ class NoteFragment : NoteFragmentBase(), HaveTag {
         handleCompleted()
 
         note = (state.noteLoadSaveResult as NoteLoadSaveResult.Completed).result!!
-        refreshTextEdits()
-
-        this.ui.favouriteMenuItem.icon =
-            if (note.isFavourite) context!!.getDrawable(R.drawable.ic_favorite_white_24dp)
-            else context!!.getDrawable(R.drawable.ic_favorite_border_white_24dp)
+        refreshAll()
 
         if (state.finishActivity) {
             toast(context!!.getString(R.string.notesSavedToast))
@@ -100,11 +91,22 @@ class NoteFragment : NoteFragmentBase(), HaveTag {
         this.ui.saveMenuItem.icon = context!!.getDrawable(R.drawable.ic_save_white_24dp)
     }
 
+    private fun refreshAll() {
+        refreshFavIcon()
+        refreshTextEdits()
+    }
+
+    private fun refreshFavIcon() {
+        this.ui.favouriteMenuItem.icon =
+            if (note.isFavourite) context!!.getDrawable(R.drawable.ic_favorite_white_24dp)
+            else context!!.getDrawable(R.drawable.ic_favorite_border_white_24dp)
+    }
+
     private fun refreshTextEdits() {
         this.ui.etTitle.setText(note.title)
-        this.ui.etTitle.setSelection(note.title?.length ?: 0)
+        this.ui.etTitle.setSelection(note.title.length)
         this.ui.etContent.setText(note.content)
-        this.ui.etContent.setSelection(note.content?.length ?: 0)
+        this.ui.etContent.setSelection(note.content.length)
     }
 
     override fun getFragmentTag(): String {

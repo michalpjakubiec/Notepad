@@ -59,6 +59,7 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
                     is NoteOperationResult.Completed -> {
                         currentState.noteOperationResult =
                             NoteOperationResult.Completed(change.updateResult.result)
+                        currentState.noteLoadSaveResult = NoteLoadSaveResult.NotStarted
                         currentState.showValidationError = false
                         currentState.finishActivity = false
                         currentState.updateNote = true
@@ -67,6 +68,7 @@ class NoteReducer : ReducerBase<NoteViewState, NoteViewStateChange> {
                     is NoteOperationResult.Failed -> {
                         currentState.noteOperationResult =
                             NoteOperationResult.Failed(change.updateResult.error)
+                        currentState.noteLoadSaveResult = NoteLoadSaveResult.NotStarted
                         currentState.showValidationError = true
                         currentState.finishActivity = false
                         currentState.updateNote = false
