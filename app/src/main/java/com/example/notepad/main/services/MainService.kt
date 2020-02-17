@@ -21,7 +21,6 @@ class MainService(context: Context) {
 
             val args = Bundle()
             args.putInt("ID", arguments.noteId)
-
             fragment.arguments = args
 
             MainRedirectionResult.Completed(fragment) as MainRedirectionResult
