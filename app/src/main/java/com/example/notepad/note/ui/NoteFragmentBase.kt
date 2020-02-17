@@ -10,6 +10,7 @@ import com.example.notepad.db.models.Note
 import com.example.notepad.main.ui.MainActivity
 import com.example.notepad.note.mvi.NotePresenter
 import com.example.notepad.note.mvi.NoteView
+import com.example.notepad.utils.sameContent
 import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
@@ -44,7 +45,7 @@ abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteVi
                     this.note.isFavourite = !this.note.isFavourite
                     this.note
                 }
-        )
+        ).distinctUntilChanged { t1, t2 -> !t1.sameContent(t2) }
 
     override fun onCreateView(
         inflater: LayoutInflater,

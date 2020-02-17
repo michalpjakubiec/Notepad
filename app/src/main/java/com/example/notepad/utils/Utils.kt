@@ -24,3 +24,10 @@ fun Note.sameAs(note: Note): Boolean {
             && this.title == note.title
             && this.id == note.id
 }
+
+fun Note.sameContent(note: Note): Boolean {
+    return this.isArchival == note.isArchival
+            && this.content == note.content
+            && this.title == note.title
+            && this.id == note.id
+}
