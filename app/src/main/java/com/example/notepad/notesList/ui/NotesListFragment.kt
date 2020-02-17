@@ -9,6 +9,7 @@ import com.example.notepad.main.utils.ReplaceFragmentArguments
 import com.example.notepad.notesList.adapter.NoteViewHolder
 import com.example.notepad.notesList.mvi.NotesListViewState
 import com.example.notepad.notesList.utils.NoteOperationResult
+import com.example.notepad.notesList.utils.NotesListFilterArguments
 import com.example.notepad.notesList.utils.NotesListOperationResult
 import com.example.notepad.utils.NOTES_LIST_FRAGMENT_TAG
 import org.jetbrains.anko.design.snackbar
@@ -18,6 +19,7 @@ class NotesListFragment : NotesListFragmentBase(), HaveTag {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initSwipeToDelete()
+        initFilters()
     }
 
     override fun render(state: NotesListViewState) {
@@ -102,6 +104,29 @@ class NotesListFragment : NotesListFragmentBase(), HaveTag {
                 deleteSubject.onNext((viewHolder as NoteViewHolder).note)
             }
         }).attachToRecyclerView(ui.mRecycler)
+    }
+
+    private fun initFilters() {
+        this.ui.filterArchival.setOnMenuItemClickListener {
+
+            this.filterSubject.onNext(
+                NotesListFilterArguments(
+                    null,
+                    null
+                )
+            )
+            true
+        }
+
+        this.ui.filterFavourite.setOnMenuItemClickListener {
+            this.filterSubject.onNext(
+                NotesListFilterArguments(
+                    null,
+                    null
+                )
+            )
+            true
+        }
     }
 
     override fun getFragmentTag(): String {

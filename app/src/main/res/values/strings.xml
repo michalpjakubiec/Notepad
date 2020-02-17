@@ -8,6 +8,6 @@
     <string name="notesSavedToast">Note saved</string>
     <string name="toolBarSaveTitle">Save</string>
     <string name="toolBarFavouriteTitle">Favourite</string>
-    <string name="toolBarSortByTitle">Sort by title</string>
-    <string name="toolBarSortByDate">Sort by date</string>
+    <string name="toolBarFilterFavourite">Filter favourites</string>
+    <string name="toolBarFilterArchival">Filter archival</string>
 </resources>

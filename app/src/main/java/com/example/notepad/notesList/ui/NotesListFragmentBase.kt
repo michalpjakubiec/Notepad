@@ -11,6 +11,8 @@ import com.example.notepad.db.models.Note
 import com.example.notepad.main.ui.MainActivity
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
+import com.example.notepad.notesList.utils.NextPageArguments
+import com.example.notepad.notesList.utils.NotesListFilterArguments
 import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.swiperefreshlayout.refreshes
@@ -29,7 +31,7 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
     override val searchIntent: Observable<String>
         get() = ui.mEtSearch.textChanges().filter { ui.mEtSearch.isFocused && it.isNotEmpty() }
             .map { it.toString().trim() }
-    override val nextPageIntent: Observable<Pair<String, Int>>
+    override val nextPageIntent: Observable<NextPageArguments>
         get() = ui.mRecycler.scrollEvents()
             .distinctUntilChanged()
             .filter { it.dy > 0 && it.view.layoutManager != null && !it.view.hasPendingAdapterUpdates() }
@@ -45,7 +47,11 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
                 val skipItems =
                     if (ui.mAdapter.notes.size < ui.mAdapter.pageNumber * 10) ui.mAdapter.notes.size else ui.mAdapter.pageNumber * 10
 
-                Pair(ui.mEtSearch.text.toString(), skipItems)
+                NextPageArguments(
+                    ui.mEtSearch.text.toString(),
+                    skipItems,
+                    NotesListFilterArguments(null, null)
+                )
             }
 
     override val showNoteIntent: Observable<Int>
@@ -61,6 +67,16 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
             ui.mEtSearch.setText("")
         }
 
+    val filterSubject: PublishSubject<NotesListFilterArguments> = PublishSubject.create()
+    override val filterIntent: Observable<NotesListFilterArguments> = filterSubject
+//        get() = Observable.merge(ui.filterArchival.clicks().map {
+//            NotesListFilterArguments(null, null)
+//        },
+//            ui.filterFavourite.clicks().map {
+//                NotesListFilterArguments(null, null)
+//            }
+//        )
+
     override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
 
     override fun onAttach(context: Context) {
@@ -74,8 +90,8 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        ui =
-            NotesListFragmentUI(context!!)
+        ui = NotesListFragmentUI(context!!)
+        mainActivity.setSupportActionBar(ui.findViewById(ui.toolbar.id))
         return ui
     }
 }

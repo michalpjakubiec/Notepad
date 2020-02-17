@@ -1,8 +1,10 @@
 package com.example.notepad.components.notesList
 
 import android.content.Context
+import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -11,6 +13,7 @@ import com.example.notepad.notesList.adapter.NotesAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import org.jetbrains.anko.*
+import org.jetbrains.anko.design.appBarLayout
 import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.design.textInputEditText
 import org.jetbrains.anko.design.textInputLayout
@@ -24,12 +27,33 @@ class NotesListFragmentUI(context: Context) : LinearLayout(context) {
     lateinit var mAdapter: NotesAdapter
     lateinit var fabAdd: FloatingActionButton
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    lateinit var toolbar: Toolbar
+    lateinit var filterFavourite: MenuItem
+    lateinit var filterArchival: MenuItem
     var mainLayout: LinearLayout
     var isNextPageLoading = false
 
     init {
         mainLayout = verticalLayout {
             lparams(matchParent, matchParent)
+
+            appBarLayout {
+                toolbar = toolbar {
+                    menu.apply {
+                        filterFavourite = add(R.string.toolBarFilterFavourite).apply {
+                            icon = context.getDrawable(R.drawable.ic_favorite_black_24dp)
+                            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                            tag = null
+                        }
+                        filterArchival = add(R.string.toolBarFilterArchival).apply {
+                            icon = context.getDrawable(R.drawable.ic_archive_black_24dp)
+                            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                            tag = null
+                        }
+                    }
+                }.lparams(matchParent, wrapContent)
+
+            }.lparams(matchParent, wrapContent)
 
             textInputLayout {
                 isErrorEnabled = true
