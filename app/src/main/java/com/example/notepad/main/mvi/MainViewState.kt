@@ -4,5 +4,6 @@ import com.example.notepad.base.ViewStateBase
 import com.example.notepad.main.utils.MainRedirectionResult
 
 data class MainViewState(
-    var redirectionResult: MainRedirectionResult = MainRedirectionResult.NotStarted
+    var redirectionResult: MainRedirectionResult = MainRedirectionResult.NotStarted,
+    var fragmentShowed: Boolean = false
 ) : ViewStateBase

@@ -7,10 +7,11 @@ import org.jetbrains.anko.design.snackbar
 class MainActivity : MainActivityBase() {
 
     override fun render(viewState: MainViewState) {
-        when (viewState.redirectionResult) {
-            is MainRedirectionResult.Completed -> handleRedirectionStateCompleted(viewState)
-            is MainRedirectionResult.Failed -> handleRedirectionStateFailed(viewState)
-        }
+        if (!viewState.fragmentShowed)
+            when (viewState.redirectionResult) {
+                is MainRedirectionResult.Completed -> handleRedirectionStateCompleted(viewState)
+                is MainRedirectionResult.Failed -> handleRedirectionStateFailed(viewState)
+            }
     }
 
     private fun handleRedirectionStateCompleted(state: MainViewState) {
@@ -18,6 +19,8 @@ class MainActivity : MainActivityBase() {
             mainContainer.id,
             (state.redirectionResult as MainRedirectionResult.Completed).result!!
         )
+
+        state.fragmentShowed = true
     }
 
     private fun handleRedirectionStateFailed(state: MainViewState) {
