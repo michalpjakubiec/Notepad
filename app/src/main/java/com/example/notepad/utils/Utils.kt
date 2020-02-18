@@ -1,5 +1,6 @@
 package com.example.notepad.utils
 
+import android.graphics.drawable.Drawable
 import android.view.MenuItem
 import android.view.View
 import com.example.notepad.db.models.Note
@@ -34,6 +35,11 @@ fun Note.sameContent(note: Note): Boolean {
             && this.id == note.id
 }
 
-fun MenuItem.tripleStageOnClick() {
-    (this as View).tag
+fun MenuItem.tripleStageOnClick(icons: List<Drawable>, maxSize: Int) {
+    var index = (this as View).tag as Int
+    index++
+    if (index < maxSize - 1)
+        index = 0
+
+    this.icon = icons[index]
 }

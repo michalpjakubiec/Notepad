@@ -11,7 +11,6 @@ import com.example.notepad.db.models.Note
 import com.example.notepad.main.ui.MainActivity
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListView
-import com.example.notepad.notesList.utils.NextPageArguments
 import com.example.notepad.notesList.utils.NotesListFilterArguments
 import com.hannesdorfmann.mosby3.mvi.MviFragment
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
@@ -31,7 +30,7 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
     override val searchIntent: Observable<String>
         get() = ui.mEtSearch.textChanges().filter { ui.mEtSearch.isFocused && it.isNotEmpty() }
             .map { it.toString().trim() }
-    override val nextPageIntent: Observable<NextPageArguments>
+    override val nextPageIntent: Observable<Pair<String, Int>>
         get() = ui.mRecycler.scrollEvents()
             .distinctUntilChanged()
             .filter { it.dy > 0 && it.view.layoutManager != null && !it.view.hasPendingAdapterUpdates() }
@@ -47,10 +46,10 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
                 val skipItems =
                     if (ui.mAdapter.notes.size < ui.mAdapter.pageNumber * 10) ui.mAdapter.notes.size else ui.mAdapter.pageNumber * 10
 
-                NextPageArguments(
+                Pair(
                     ui.mEtSearch.text.toString(),
-                    skipItems,
-                    NotesListFilterArguments(null, null)
+                    skipItems
+                )
                 )
             }
 
