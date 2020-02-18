@@ -119,5 +119,53 @@ class NoteRepository(context: Context) {
             .subscribeOn(Schedulers.io())
     }
 
+    fun loadNotes(
+        limit: Int,
+        skip: Int,
+        archivalFilter: Boolean,
+        favouriteFilter: Boolean
+    ): Observable<NotesListDbResponse> {
+        return Observable.fromCallable {
+            try {
+                // do zastapienia api callem
+                var items = db.allNotes()
 
+                items = if (archivalFilter)
+                    items.filter { it.isArchival }
+                else
+                    items.filter { it.isArchival }
+
+                items = if (favouriteFilter)
+                    items.filter { it.isFavourite }.drop(skip).take(limit)
+                else
+                    items.filter { !it.isFavourite }.drop(skip).take(limit)
+
+                if (items.size < limit)
+                    throw Error("Page is not full")
+
+                return@fromCallable NotesListDbResponse("", items)
+
+            } catch (ex: Exception) {
+                return@fromCallable NotesListDbResponse(ex.toString(), listOf())
+            }
+        }.onErrorResumeNext(
+            api.getNotes(limit * 10).map { json ->
+                var items: List<Note> = Gson().fromJson(json, listType)
+
+                items = if (archivalFilter)
+                    items.filter { it.isArchival }
+                else
+                    items.filter { it.isArchival }
+
+                items = if (favouriteFilter)
+                    items.filter { it.isFavourite }.drop(skip).take(limit)
+                else
+                    items.filter { !it.isFavourite }.drop(skip).take(limit)
+
+                db.insert(items)
+                NotesListDbResponse("", items)
+            })
+            .onErrorReturn { NotesListDbResponse(it.message.toString(), listOf()) }
+            .subscribeOn(Schedulers.io())
+    }
 }

@@ -1,5 +1,7 @@
 package com.example.notepad.utils
 
+import android.view.MenuItem
+import android.view.View
 import com.example.notepad.db.models.Note
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,4 +32,8 @@ fun Note.sameContent(note: Note): Boolean {
             && this.content == note.content
             && this.title == note.title
             && this.id == note.id
+}
+
+fun MenuItem.tripleStageOnClick() {
+    (this as View).tag
 }

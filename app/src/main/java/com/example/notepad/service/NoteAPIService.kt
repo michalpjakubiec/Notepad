@@ -13,6 +13,11 @@ interface NoteAPIService {
 
     @GET("api/notes")
     fun getNotes(
+        @Query("take") take: Int
+    ): Observable<JsonArray>
+
+    @GET("api/notes")
+    fun getNotes(
         @Query("take") take: Int,
         @Query("skip") skip: Int
     ): Observable<JsonArray>

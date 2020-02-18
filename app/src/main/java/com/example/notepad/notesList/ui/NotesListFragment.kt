@@ -108,7 +108,6 @@ class NotesListFragment : NotesListFragmentBase(), HaveTag {
 
     private fun initFilters() {
         this.ui.filterArchival.setOnMenuItemClickListener {
-
             this.filterSubject.onNext(
                 NotesListFilterArguments(
                     null,
