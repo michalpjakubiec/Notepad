@@ -44,13 +44,9 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
             .map {
                 ui.isNextPageLoading = true
                 val skipItems =
-                    if (ui.mAdapter.notes.size < ui.mAdapter.pageNumber * 10) ui.mAdapter.notes.size else ui.mAdapter.pageNumber * 10
+                    if (ui.mAdapter.notes.size < ui.mAdapter.pageNumber * 10) ui.mAdapter.itemCount else ui.mAdapter.pageNumber * 10
 
-                Pair(
-                    ui.mEtSearch.text.toString(),
-                    skipItems
-                )
-                )
+                ui.mEtSearch.text.toString() to skipItems
             }
 
     override val showNoteIntent: Observable<Int>
@@ -89,8 +85,10 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        ui = NotesListFragmentUI(context!!)
-        mainActivity.setSupportActionBar(ui.findViewById(ui.toolbar.id))
+        ui = NotesListFragmentUI(context!!).apply {
+            mainActivity.setSupportActionBar(this.findViewById(ui.toolbar.id))
+        }
+
         return ui
     }
 }

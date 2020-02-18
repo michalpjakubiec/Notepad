@@ -2,7 +2,7 @@ package com.example.notepad.notesList.adapter
 
 import android.content.Context
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notepad.components.notesList.NoteViewHolderUI
 import com.example.notepad.db.models.Note
@@ -13,8 +13,8 @@ class NotesAdapter(
     private val context: Context
 ) : RecyclerView.Adapter<NoteViewHolder>() {
 
-    var notes: ArrayList<Note> = ArrayList()
     var pageNumber: Int = 0
+    private val differ = AsyncListDiffer(this, NoteDiffCallback())
     val updateItemSubject: PublishSubject<Note> = PublishSubject.create()
     val longClickSubject: PublishSubject<Int> = PublishSubject.create()
 
@@ -23,41 +23,23 @@ class NotesAdapter(
     }
 
     fun deletedItem(id: Int) {
-        val newList = ArrayList(notes)
+        val newList = ArrayList(differ.currentList)
         newList.removeIf { it.id == id }
 
-        val diff = NoteDiffCallback(newList, notes)
-        val result = DiffUtil.calculateDiff(diff)
-
-        this.notes.clear()
-        this.notes.addAll(newList)
-
-        result.dispatchUpdatesTo(this)
+        differ.submitList(newList)
     }
 
     fun setItems(items: List<Note>) {
-        val diff = NoteDiffCallback(items, notes)
-        val result = DiffUtil.calculateDiff(diff)
-
-        this.notes.clear()
-        this.notes.addAll(items)
+        differ.submitList(items)
         this.pageNumber = 1
-
-
-        result.dispatchUpdatesTo(this)
     }
 
     fun addItems(items: List<Note>) {
-        if (items.isEmpty()) return
-
-        val oldList = ArrayList(notes)
-        notes.addAll(items)
-
-        val diff = NoteDiffCallback(notes, oldList)
-        val result = DiffUtil.calculateDiff(diff)
+        val currentList = ArrayList(differ.currentList)
+        currentList.addAll(items)
 
         pageNumber++
-        result.dispatchUpdatesTo(this)
+        differ.submitList(currentList)
     }
 
 
@@ -70,17 +52,21 @@ class NotesAdapter(
     }
 
     fun updateItem(itemId: Int, note: Note) {
-        val index = this.notes.indexOfFirst { it.id == itemId }
-        notes[index] = note
-        this.notifyItemChanged(index)
+        val newList = ArrayList(differ.currentList)
+        val index = newList.indexOfFirst { it.id == itemId }
+        newList[index] = note
+
+        differ.submitList(newList)
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        val note = notes[position]
-
-
-        holder.bindItem(note, position, this::noteUpdated, this::longClicked)
+        holder.bindItem(
+            differ.currentList[position],
+            position,
+            this::noteUpdated,
+            this::longClicked
+        )
     }
 
-    override fun getItemCount(): Int = notes.size
+    override fun getItemCount(): Int = differ.currentList.size
 }
