@@ -36,7 +36,7 @@ class NotesListHelper(
     }
 
     fun loadNotes(filter: String, limit: Int, skip: Int): Observable<NotesListOperationResult> {
-        if (filter.isNotEmpty() || filter.length < 3)
+        if (filter.isNotEmpty() && filter.length < 3)
             return Observable.just(NotesListOperationResult.Failed("Query must be longer than 2 characters!"))
 
         return queryService.loadNotes(limit, skip, filter).map {
