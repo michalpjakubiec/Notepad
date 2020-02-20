@@ -16,8 +16,13 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import org.kodein.di.KodeinAware
+import org.kodein.di.LateInitKodein
+import org.kodein.di.generic.instance
 
-abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteView {
+abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteView, KodeinAware {
+    override val kodein = LateInitKodein()
+    private val presenter: NotePresenter by instance()
     lateinit var ui: NoteFragmentUI
     lateinit var mainActivity: MainActivity
     var note: Note = Note()
@@ -57,11 +62,13 @@ abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteVi
         return ui
     }
 
-    override fun createPresenter(): NotePresenter = NotePresenter(context!!)
+    override fun createPresenter(): NotePresenter = presenter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is MainActivity)
+        if (context is MainActivity) {
             mainActivity = context
+            this.kodein.baseKodein = (mainActivity as KodeinAware).kodein
+        }
     }
 }

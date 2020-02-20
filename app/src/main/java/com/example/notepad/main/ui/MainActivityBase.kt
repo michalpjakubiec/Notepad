@@ -16,10 +16,15 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.matchParent
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.android.closestKodein
 
 abstract class MainActivityBase : MviActivity<MainView, MainPresenter>(),
     MainView,
-    ReplaceFragment {
+    ReplaceFragment, KodeinAware {
+
+    override val kodein: Kodein by closestKodein()
     lateinit var ui: MainUI
     val redirectSubject: PublishSubject<ReplaceFragmentArguments> = PublishSubject.create()
     lateinit var mainContainer: LinearLayout

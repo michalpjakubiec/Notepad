@@ -5,7 +5,7 @@ import com.example.notepad.base.ReducerBase
 import com.example.notepad.notesList.utils.NoteOperationResult
 import com.example.notepad.notesList.utils.NotesListOperationResult
 
-class NotesListViewReducer : ReducerBase<NotesListViewState, NotesListViewStateChange> {
+class NotesListReducer : ReducerBase<NotesListViewState, NotesListViewStateChange> {
 
     override fun reduce(
         state: NotesListViewState,

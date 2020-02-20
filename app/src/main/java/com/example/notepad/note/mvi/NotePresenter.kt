@@ -1,16 +1,15 @@
 package com.example.notepad.note.mvi
 
-import android.content.Context
-import com.example.notepad.note.services.NoteUseCase
+import com.example.notepad.note.helpers.NoteUseCase
 import com.hannesdorfmann.mosby3.mvi.MviBasePresenter
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
-class NotePresenter(context: Context) : MviBasePresenter<NoteView, NoteViewState>() {
-
-    private val reducer by lazy { NoteReducer() }
-    private val useCase by lazy { NoteUseCase(context) }
+class NotePresenter(
+    private val reducer: NoteReducer,
+    private val useCase: NoteUseCase
+) : MviBasePresenter<NoteView, NoteViewState>() {
 
     override fun bindIntents() {
         val saveIntent = intent { it.saveIntent }

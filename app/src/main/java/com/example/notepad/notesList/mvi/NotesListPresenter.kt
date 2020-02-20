@@ -1,7 +1,6 @@
 package com.example.notepad.notesList.mvi
 
-import android.content.Context
-import com.example.notepad.notesList.services.NotesListUseCase
+import com.example.notepad.notesList.helpers.NotesListUseCase
 import com.example.notepad.notesList.utils.NotesListOperationResult
 import com.hannesdorfmann.mosby3.mvi.MviBasePresenter
 import io.reactivex.Observable
@@ -9,11 +8,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-class NotesListPresenter(context: Context) :
+class NotesListPresenter(
+    private val reducer: NotesListReducer,
+    private val useCase: NotesListUseCase
+) :
     MviBasePresenter<NotesListView, NotesListViewState>() {
-
-    private val reducer by lazy { NotesListViewReducer() }
-    private val useCase by lazy { NotesListUseCase(context) }
 
     override fun bindIntents() {
         val searchIntent = intent { it.searchIntent }
@@ -58,7 +57,7 @@ class NotesListPresenter(context: Context) :
 
         val initialLoadIntent = intent { it.initialLoadIntent }
             .switchMap {
-                useCase.loadNextPage(0)
+                useCase.loadNextPage()
                     .delay(1, TimeUnit.SECONDS)
                     .startWith(NotesListOperationResult.Pending)
             }
@@ -67,7 +66,7 @@ class NotesListPresenter(context: Context) :
 
         val refreshIntent = intent { it.refreshIntent }
             .switchMap {
-                useCase.loadNextPage(0)
+                useCase.loadNextPage()
                     .delay(1, TimeUnit.SECONDS)
                     .startWith(NotesListOperationResult.Pending)
             }

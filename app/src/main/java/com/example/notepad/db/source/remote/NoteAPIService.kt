@@ -1,16 +1,12 @@
-package com.example.notepad.service
+package com.example.notepad.db.source.remote
 
 import com.example.notepad.db.models.Note
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import io.reactivex.Observable
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
 interface NoteAPIService {
-
     @GET("api/notes")
     fun getNotes(
         @Query("take") take: Int
@@ -40,16 +36,4 @@ interface NoteAPIService {
 
     @PUT("api/notes/{id}")
     fun update(@Path("id") id: Int, @Body note: Note): Observable<JsonObject>
-
-    companion object {
-        fun getService(): NoteAPIService {
-            val retrofit = Retrofit.Builder()
-                .baseUrl("http://kotlinappapi.azurewebsites.net/")
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-            return retrofit.create<NoteAPIService>(NoteAPIService::class.java)
-        }
-    }
 }

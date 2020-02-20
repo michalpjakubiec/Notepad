@@ -19,10 +19,16 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import org.kodein.di.KodeinAware
+import org.kodein.di.LateInitKodein
+import org.kodein.di.generic.instance
 import java.util.concurrent.TimeUnit
 
 abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPresenter>(),
-    NotesListView {
+    NotesListView, KodeinAware {
+    override val kodein = LateInitKodein()
+    private val presenter: NotesListPresenter by instance()
+
     lateinit var ui: NotesListFragmentUI
     lateinit var mainActivity: MainActivity
     val deleteSubject: PublishSubject<Note> = PublishSubject.create()
@@ -44,7 +50,7 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
             .map {
                 ui.isNextPageLoading = true
                 val skipItems =
-                    if (ui.mAdapter.notes.size < ui.mAdapter.pageNumber * 10) ui.mAdapter.itemCount else ui.mAdapter.pageNumber * 10
+                    if (ui.mAdapter.itemCount < ui.mAdapter.pageNumber * 10) ui.mAdapter.itemCount else ui.mAdapter.pageNumber * 10
 
                 ui.mEtSearch.text.toString() to skipItems
             }
@@ -72,12 +78,14 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
 //            }
 //        )
 
-    override fun createPresenter(): NotesListPresenter = NotesListPresenter(context!!)
+    override fun createPresenter(): NotesListPresenter = presenter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is MainActivity)
+        if (context is MainActivity) {
             this.mainActivity = context
+            this.kodein.baseKodein = (mainActivity as KodeinAware).kodein
+        }
     }
 
     override fun onCreateView(
@@ -86,7 +94,7 @@ abstract class NotesListFragmentBase : MviFragment<NotesListView, NotesListPrese
         savedInstanceState: Bundle?
     ): View? {
         ui = NotesListFragmentUI(context!!).apply {
-            mainActivity.setSupportActionBar(this.findViewById(ui.toolbar.id))
+            mainActivity.setSupportActionBar(this.findViewById(this.toolbar.id))
         }
 
         return ui
