@@ -68,4 +68,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.61"
+
+    implementation 'com.instabug.library:instabug:9.0.5'
+    implementation 'com.instabug.library:instabug-with-okhttp-interceptor:9.0.5'
 }
