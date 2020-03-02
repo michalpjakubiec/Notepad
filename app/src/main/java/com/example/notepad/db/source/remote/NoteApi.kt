@@ -3,17 +3,25 @@ package com.example.notepad.db.source.remote
 import com.example.notepad.db.models.Note
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.instabug.library.okhttplogger.InstabugOkhttpInterceptor
 import io.reactivex.Observable
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+
 class NoteApi {
     private val listType = object : TypeToken<List<Note>>() {}.type
     private val noteType = object : TypeToken<Note>() {}.type
 
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(InstabugOkhttpInterceptor())
+        .build()
+
     private val retrofit = Retrofit.Builder()
+        .client(client)
         .baseUrl("http://kotlinappapi.azurewebsites.net/")
         .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
         .addConverterFactory(GsonConverterFactory.create())

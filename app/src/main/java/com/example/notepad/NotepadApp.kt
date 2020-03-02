@@ -20,12 +20,15 @@ import com.example.notepad.notesList.helpers.NotesListHelper
 import com.example.notepad.notesList.helpers.NotesListUseCase
 import com.example.notepad.notesList.mvi.NotesListPresenter
 import com.example.notepad.notesList.mvi.NotesListReducer
+import com.instabug.library.Instabug
+import com.instabug.library.invocation.InstabugInvocationEvent
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.x.androidXModule
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
+
 
 class NotepadApp : Application(), KodeinAware {
     override val kodein: Kodein = Kodein.lazy {
@@ -66,5 +69,16 @@ class NotepadApp : Application(), KodeinAware {
             )
         }
         this.bind<NotePresenter>() with singleton { NotePresenter(instance(), instance()) }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+
+        Instabug.Builder(this, "5b8ae7e23728a085f0ff9318439fcdf1")
+            .setInvocationEvents(
+                InstabugInvocationEvent.SHAKE,
+                InstabugInvocationEvent.FLOATING_BUTTON
+            )
+            .build()
     }
 }

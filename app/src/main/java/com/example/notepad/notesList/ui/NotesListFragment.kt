@@ -11,6 +11,7 @@ import com.example.notepad.notesList.mvi.NotesListViewState
 import com.example.notepad.notesList.utils.NoteOperationResult
 import com.example.notepad.notesList.utils.NotesListOperationResult
 import com.example.notepad.utils.NOTES_LIST_FRAGMENT_TAG
+import com.instabug.crash.CrashReporting
 import org.jetbrains.anko.design.snackbar
 
 class NotesListFragment : NotesListFragmentBase(), HaveTag {
@@ -18,6 +19,7 @@ class NotesListFragment : NotesListFragmentBase(), HaveTag {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initSwipeToDelete()
+        initFilters()
     }
 
     override fun render(state: NotesListViewState) {
@@ -104,7 +106,29 @@ class NotesListFragment : NotesListFragmentBase(), HaveTag {
         }).attachToRecyclerView(ui.mRecycler)
     }
 
+    private fun throwException() {
+        throw Exception("Fav icon filter exception")
+    }
+
+    private fun throwNullException() {
+        throw NullPointerException("Archival icon filter exception")
+    }
+
     private fun initFilters() {
+        this.ui.filterFavourite.setOnMenuItemClickListener {
+            try {
+                throwException()
+                true
+            } catch (ex: Exception) {
+                CrashReporting.reportException(ex)
+                false
+            }
+        }
+
+        this.ui.filterArchival.setOnMenuItemClickListener {
+            throwNullException()
+            false
+        }
 //        val archIcons = listOf(
 //            context!!.getDrawable(R.drawable.ic_archive_black_24dp)!!,
 //            context!!.getDrawable(R.drawable.ic_archive_white_24dp)!!,

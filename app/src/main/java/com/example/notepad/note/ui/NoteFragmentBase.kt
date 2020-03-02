@@ -34,13 +34,13 @@ abstract class NoteFragmentBase : MviFragment<NoteView, NotePresenter>(), NoteVi
     override val updateIntent: Observable<Note>
         get() = Observable.merge(
             ui.etContent.textChanges()
-                .distinctUntilChanged { t1, t2 -> t1 != t2 }.map {
+                .distinct().map {
                     this.note.content = it.toString()
                     this.note
                 },
 
             ui.etTitle.textChanges()
-                .distinctUntilChanged { t1, t2 -> t1 != t2 }.map {
+                .distinct().map {
                     this.note.title = it.toString()
                     this.note
                 },
