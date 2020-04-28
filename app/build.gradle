@@ -8,7 +8,7 @@ android {
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.example.notepad"
-        minSdkVersion 28
+        minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -19,6 +19,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    testOptions {
+        animationsDisabled
+        reportDir "$buildDir/androidTests/reports/"
+        resultsDir "$buildDir/androidTests/results/"
     }
 }
 
@@ -61,8 +66,16 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.2.1'
     implementation "androidx.navigation:navigation-ui-ktx:2.2.1"
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.61"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testImplementation 'junit:junit:4.13'
+
+    // Espresso testing
+    androidTestImplementation "androidx.test:rules:1.2.0"
+    androidTestImplementation "androidx.test:runner:1.2.0"
+    androidTestImplementation "androidx.test.ext:junit:1.1.1"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espresso_version"
+    androidTestImplementation "androidx.test.uiautomator:uiautomator:2.2.0"
+    androidTestUtil "com.android.support.test:orchestrator:1.0.2"
 }
+
