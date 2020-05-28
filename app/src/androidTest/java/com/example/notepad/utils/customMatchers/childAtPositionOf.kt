@@ -10,7 +10,7 @@ import org.hamcrest.TypeSafeMatcher
 fun childAtPositionOf(parentMatcher: Matcher<View>, childPosition: Int): Matcher<View> {
     return object : TypeSafeMatcher<View>() {
         override fun describeTo(description: Description) {
-            description.appendText("child at position: $childPosition at parent view of type $parentMatcher")
+            description.appendText("\nwith child at position: $childPosition at parent view of type $parentMatcher")
         }
 
         override fun matchesSafely(view: View): Boolean {

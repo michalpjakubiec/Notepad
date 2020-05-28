@@ -1,19 +1,25 @@
 package com.example.notepad
 
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import androidx.test.uiautomator.UiDevice
+import com.example.notepad.components.note.NoteFragmentUI
 import com.example.notepad.components.notesList.NoteViewHolderUI
 import com.example.notepad.main.ui.MainActivity
 import com.example.notepad.utils.*
-import com.example.notepad.utils.customActions.waitForViewFor
+import com.example.notepad.utils.customActions.waitForViewToBeDisabledUntil
+import com.example.notepad.utils.customActions.waitForViewUntil
 import com.example.notepad.utils.customMatchers.DrawableMatchers.withImageButtonDrawable
 import com.example.notepad.utils.customMatchers.withIndex
 import com.example.notepad.utils.customRules.ScreenshotTestRule
@@ -32,9 +38,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 
 class MainActivityTest {
+    private val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
     @get:Rule val mActivityTestRule = ActivityTestRule(MainActivity::class.java)
     @get:Rule val screenshotTestRule = ScreenshotTestRule()
-    @get:Rule val globalTimeout = Timeout.millis(testCaseTimeout)!!
+    @get:Rule val globalTimeout = Timeout.seconds(testCaseTimeoutSeconds)!!
 
     companion object {
         @BeforeClass
@@ -47,7 +55,7 @@ class MainActivityTest {
     fun before() {
         onView(isRoot())
             .perform(
-                waitForViewFor(
+                waitForViewUntil(
                     isAssignableFrom(NoteViewHolderUI::class.java),
                     waitForViewTimeout
                 )
@@ -75,7 +83,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun shouldOpenEditNoteViewOnNoteLongClick() {
+    fun shouldDisplayNoteFragmentUiWithNoteDataOnNoteLongClick() {
         onView(instanceOf(_RecyclerView::class.java))
             .perform(
                 RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
@@ -108,6 +116,75 @@ class MainActivityTest {
     }
 
     @Test
+    fun shouldNotDisplayNoteFragmentUiOnArchivedNoteLongClick() {
+        onView(instanceOf(_RecyclerView::class.java))
+            .perform(
+                RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
+                    allOf(
+                        isAssignableFrom(NoteViewHolderUI::class.java),
+                        hasDescendant(withText(titleArchived))
+                    ), longClick()
+                )
+            )
+
+        onView(isAssignableFrom(NoteFragmentUI::class.java))
+            .check(doesNotExist())
+    }
+
+    @Test
+    fun shouldMakeNoteFavouriteOnClickFavouriteIcon() {
+        onView(
+            allOf(
+                isDescendantOfA(isAssignableFrom(NoteViewHolderUI::class.java)),
+                hasSibling(withText(titleToFavourite)),
+                withIndex(isAssignableFrom(ImageButton::class.java), 0)
+            )
+        ).perform(click())
+
+        onView(
+            allOf(
+                isDescendantOfA(isAssignableFrom(NoteViewHolderUI::class.java)),
+                hasSibling(withText(titleToFavourite)),
+                withIndex(isAssignableFrom(ImageButton::class.java), 0)
+            )
+        ).check(matches(withImageButtonDrawable(R.drawable.ic_favorite_white_24dp)))
+    }
+
+    @Test
+    fun shouldUpdateNote() {
+        onView(instanceOf(_RecyclerView::class.java))
+            .perform(
+                RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
+                    allOf(
+                        isAssignableFrom(NoteViewHolderUI::class.java),
+                        hasDescendant(withText(titleEditNote))
+                    ), longClick()
+                )
+            )
+
+        onView(withHint(R.string.titleHint))
+            .perform(clearText(), typeText(editedTitle))
+
+        onView(withHint(R.string.contentHint))
+            .perform(clearText(), typeText(editedContent))
+
+        onView(withContentDescription(R.string.toolBarSaveTitle))
+            .perform(click())
+
+        onView(isRoot())
+            .perform(
+                waitForViewUntil(
+                    allOf(
+                        isAssignableFrom(NoteViewHolderUI::class.java),
+                        hasDescendant(withText(editedTitle)),
+                        hasDescendant(withText(editedContent))
+                    ),
+                    waitForViewTimeout
+                )
+            )
+    }
+
+    @Test
     fun shouldArchiveNote() {
         onView(
             allOf(
@@ -132,7 +209,7 @@ class MainActivityTest {
         val noteToDelete = onView(
             allOf(
                 isAssignableFrom(NoteViewHolderUI::class.java),
-                withChild(withText(titleDelete))
+                hasDescendant(withText(titleDelete))
             )
         )
 
@@ -143,6 +220,31 @@ class MainActivityTest {
             .perform(swipeRight())
             .check(matches(not(isDisplayed())))
     }
+
+//    @Test
+//    fun circleTest() {
+//        onView(isRoot())
+//            .perform(
+//                waitForViewToBeDisabledUntil(
+//                    allOf(
+//                        instanceOf(ImageView::class.java),
+////                childAtPositionOf(instanceOf(SwipeRefreshLayout::class.java), 1),
+//                        withClassName(containsString("CircleImageView"))
+//                    ),
+//                    waitForViewTimeout
+//                )
+//            )
+//
+//
+////        onView(
+////            allOf(
+////                instanceOf(ImageView::class.java),
+//////                childAtPositionOf(instanceOf(SwipeRefreshLayout::class.java), 1),
+////                withClassName(containsString("CircleImageView"))
+////            )
+////        )
+////            .check(matches(not(isDisplayed())))
+//    }
 }
 
 

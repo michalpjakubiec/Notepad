@@ -24,6 +24,7 @@ android {
         animationsDisabled
         reportDir "$buildDir/androidTests/reports/"
         resultsDir "$buildDir/androidTests/results/"
+        execution "ANDROIDX_TEST_ORCHESTRATOR"
     }
 }
 
@@ -76,6 +77,30 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espresso_version"
     androidTestImplementation "androidx.test.uiautomator:uiautomator:2.2.0"
-    androidTestUtil "com.android.support.test:orchestrator:1.0.2"
+    androidTestUtil 'androidx.test:orchestrator:1.2.0'
+}
+
+def reportsDir = "${android.testOptions.reportDir}"
+def deviceScreenshotDir = "/sdcard/Android/data/${android.defaultConfig.applicationId}/files/Pictures"
+
+def clearScreenshotsTask = task('clearScreenshots', type: Exec) {
+    executable "${android.getAdbExe().toString()}"
+    args 'shell', 'rm', '-r', deviceScreenshotDir
+}
+
+def fetchScreenshotsTask = task('fetchScreenshots', type: Exec, group: 'reporting') {
+    executable "${android.getAdbExe().toString()}"
+    args 'pull', deviceScreenshotDir, reportsDir
+    finalizedBy {
+        clearScreenshotsTask
+    }
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'connectedDebugAndroidTest') {
+        task.finalizedBy {
+            fetchScreenshotsTask
+        }
+    }
 }
 

@@ -12,7 +12,7 @@ fun withIndex(matcher: Matcher<View?>, index: Int): Matcher<View?>? {
         var viewObjHash = 0
 
         override fun describeTo(description: Description) {
-            description.appendText("with index: $index")
+            description.appendText("with index: $index of view: $matcher")
         }
 
         override fun matchesSafely(view: View): Boolean {

@@ -7,7 +7,7 @@ import org.junit.runners.Suite
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
     MainActivityTest::class,
-    AddNoteTest::class
+    NoteFragmentUITest::class
 //    DeviceSimulatedActions::class
 )
-class ActivityTestSuite
+class MainActivityTestSuite

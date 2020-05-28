@@ -24,11 +24,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 
 class DeviceSimulatedActions {
-
     private val timeout = 1000L
     private val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    private val mAppContext =
-        InstrumentationRegistry.getInstrumentation().targetContext
+    private val mAppContext = InstrumentationRegistry.getInstrumentation().targetContext
 
     @get:Rule val mActivityTestRule = ActivityTestRule(MainActivity::class.java)
     @get:Rule val screenshotTestRule = ScreenshotTestRule()
@@ -70,8 +68,6 @@ class DeviceSimulatedActions {
         Thread.sleep(timeout)
         mDevice.pressRecentApps()
         Thread.sleep(timeout)
-
-        // TODO: add assertion for current view
     }
 
     @Test

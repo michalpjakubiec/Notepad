@@ -13,7 +13,7 @@ import androidx.test.rule.ActivityTestRule
 import com.example.notepad.components.notesList.NoteViewHolderUI
 import com.example.notepad.main.ui.MainActivity
 import com.example.notepad.utils.*
-import com.example.notepad.utils.customActions.waitForViewFor
+import com.example.notepad.utils.customActions.waitForViewUntil
 import com.example.notepad.utils.customMatchers.DrawableMatchers.withImageButtonDrawable
 import com.example.notepad.utils.customMatchers.DrawableMatchers.withTextViewDrawable
 import com.example.notepad.utils.customMatchers.withIndex
@@ -31,10 +31,10 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 
-class AddNoteTest {
+class NoteFragmentUITest {
     @get:Rule val mActivityTestRule = ActivityTestRule(MainActivity::class.java)
     @get:Rule val screenshotTestRule = ScreenshotTestRule()
-    @get:Rule val globalTimeout: Timeout = Timeout.millis(testCaseTimeout)
+    @get:Rule val globalTimeout = Timeout.seconds(testCaseTimeoutSeconds)!!
 
     @Before
     fun before() {
@@ -51,7 +51,7 @@ class AddNoteTest {
 
     @Test
     fun shouldValidateTitleWhileTyping() {
-        isSaveIconEnabled(false)
+        val saveIcon = onView(withContentDescription(R.string.toolBarSaveTitle))
 
         onView(
             withIndex(
@@ -62,11 +62,11 @@ class AddNoteTest {
                 ), 0
             )
         ).perform(typeText(titleInvalid), closeSoftKeyboard())
-        isSaveIconEnabled(false)
+        saveIcon.check(matches(not(isEnabled())))
 
         onView(withHint(R.string.titleHint))
             .perform(clearText())
-        isSaveIconEnabled(false)
+        saveIcon.check(matches(not(isEnabled())))
 
         onView(withHint(R.string.titleHint))
             .perform(
@@ -74,7 +74,7 @@ class AddNoteTest {
                 typeText(titleValid),
                 closeSoftKeyboard()
             )
-        isSaveIconEnabled(true)
+        saveIcon.check(matches(isEnabled()))
     }
 
     @Test
@@ -94,7 +94,7 @@ class AddNoteTest {
 
         onView(isRoot())
             .perform(
-                waitForViewFor(
+                waitForViewUntil(
                     isAssignableFrom(NoteViewHolderUI::class.java),
                     waitForViewTimeout
                 )
@@ -126,7 +126,7 @@ class AddNoteTest {
 
         onView(isRoot())
             .perform(
-                waitForViewFor(
+                waitForViewUntil(
                     isAssignableFrom(NoteViewHolderUI::class.java),
                     waitForViewTimeout
                 )
@@ -139,14 +139,5 @@ class AddNoteTest {
                 withImageButtonDrawable(R.drawable.ic_favorite_white_24dp)
             )
         ).check(matches(isDisplayed()))
-    }
-
-    private fun isSaveIconEnabled(enabled: Boolean) {
-        if (enabled)
-            onView(withContentDescription(R.string.toolBarSaveTitle))
-                .check(matches(isEnabled()))
-        else
-            onView(withContentDescription(R.string.toolBarSaveTitle))
-                .check(matches(not(isEnabled())))
     }
 }
